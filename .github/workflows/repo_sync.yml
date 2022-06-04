@@ -36,7 +36,7 @@ jobs:
     - name: Commit
       run: |
         git config --global user.email 349589369@qq.com
-        git config --global user.name Jejz
+        git config --global user.name Jejz168
         git add .
         git commit -m"action:`date`"
         git pull --rebase
