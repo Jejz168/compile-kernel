@@ -23,6 +23,7 @@ jobs:
       run: |
         sudo timedatectl set-timezone "$TZ"
         pwd
+        chmod +x *
         #临时备份本仓库readme
         mv README.md back.md
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
