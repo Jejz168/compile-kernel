@@ -26,8 +26,8 @@ jobs:
         #临时备份本仓库readme
         mv README.md back.md
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
-        sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
-        #sed -i 's/-ophub//g' `grep -e "-ophub" -rl ./`
+        #sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
+        sed -i 's/-ophub//g' `grep -e "-ophub" -rl ./`
         #备份源仓库readme
         mv README.md READMEBACK.md
         #恢复本仓库readme
