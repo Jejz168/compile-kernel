@@ -23,12 +23,10 @@ jobs:
       run: |
         sudo timedatectl set-timezone "$TZ"
         pwd
-        chmod +x *
         #临时备份本仓库readme
         mv README.md back.md
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
-        #sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
-        sed -i 's/-ophub//g' `grep -e "-ophub" -rl ./`
+        sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
         #备份源仓库readme
         mv README.md READMEBACK.md
         #恢复本仓库readme
@@ -37,7 +35,7 @@ jobs:
     - name: Commit
       run: |
         git config --global user.email 349589369@qq.com
-        git config --global user.name Jejz-OpenWrt
+        git config --global user.name Jejz
         git add .
         git commit -m"action:`date`"
         git pull --rebase
