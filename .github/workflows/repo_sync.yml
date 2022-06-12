@@ -17,7 +17,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
       with:
-        token: ${{ secrets.ACTIONS_TRIGGER_PAT }}
+        token: ${{ secrets.GH_TOKEN }}
 
     - name: Initialization environment
       env:
@@ -27,8 +27,6 @@ jobs:
         pwd
         #临时备份本仓库readme
         mv README.md back.md
-        mv .github/workflows/repo_sync.yml repo_sync.yml
-        mv .github/workflows/kernel.yml kernel.yml
         rm -rf .github/workflows
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
@@ -37,8 +35,7 @@ jobs:
         mv README.md READMEBACK.md
         #恢复本仓库readme
         mv back.md README.md
-        mv kernel.yml .github/workflows/
-        mv repo_sync.yml .github/workflows/
+        
     - name: Commit
       run: |
         git config --global user.email 349589369@qq.com
@@ -50,7 +47,7 @@ jobs:
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.ACTIONS_TRIGGER_PAT }}        
+        github_token: ${{ secrets.GH_TOKEN }}        
         force: true    
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@v2
