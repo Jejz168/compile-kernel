@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@main
       with:
         token: ${{ secrets.GH_TOKEN }}
 
@@ -28,9 +28,8 @@ jobs:
         #临时备份本仓库readme
         mv README.md back.md
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
-        sed -i 's/-ophub//g' ./*
-        #sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
-        #sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
+        sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
+        sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
         #备份源仓库readme
         mv README.md READMEBACK.md
         #恢复本仓库readme
