@@ -27,7 +27,6 @@ jobs:
         pwd
         #临时备份本仓库readme
         mv README.md back.md
-        rm -rf .github/workflows
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
