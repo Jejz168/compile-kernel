@@ -27,6 +27,7 @@ jobs:
         mv README.md back.md
         mv .github/workflows/repo_sync.yml repo_sync.yml
         mv .github/workflows/kernel.yml kernel.yml
+        rm -rf .github/workflows
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
