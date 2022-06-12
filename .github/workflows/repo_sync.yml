@@ -16,7 +16,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@main
-      
+      with:
+        token: ${{ secrets.ACTIONS_TRIGGER_PAT }}
+
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
