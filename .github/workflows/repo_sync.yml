@@ -25,6 +25,8 @@ jobs:
         pwd
         #临时备份本仓库readme
         mv README.md back.md
+        mv .github/workflows/repo_sync.yml repo_sync.yml
+        mv .github/workflows/kernel.yml kernel.yml
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
@@ -32,7 +34,8 @@ jobs:
         mv README.md READMEBACK.md
         #恢复本仓库readme
         mv back.md README.md
-        
+        mv kernel.yml .github/workflows/
+        mv repo_sync.yml .github/workflows/
     - name: Commit
       run: |
         git config --global user.email 349589369@qq.com
