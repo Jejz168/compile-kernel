@@ -1,4 +1,4 @@
-name: 同步源仓库
+name: Repo_sync
 
 on:
   repository_dispatch:
