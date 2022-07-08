@@ -35,7 +35,7 @@ jobs:
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force        
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
-        sed -i 's/-ophub/custom_name=""/g' .
+        sed -i 's/-ophub/custom_name=""/g' ./*
         #备份源仓库readme
         mv README.md READMEBACK.md
         #恢复本仓库readme
