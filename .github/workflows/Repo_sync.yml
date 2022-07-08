@@ -27,11 +27,12 @@ jobs:
         pwd
         #临时备份本仓库readme
         mv README.md back.md
-        mv ./.github/workflows/Kernel-compilation.yml ./Kernel-compilation.yml
-        mv ./.github/workflows/Repo_sync.yml ./Repo_sync.yml
-        mv ./.github/workflows/delete-older-releases-artifacts.yml ./delete-older-releases-artifacts.yml
-        rm -rf ./.github/workflows
-        mkdir -p ./.github/workflows
+        mv .github/workflows/Kernel-compilation.yml .Kernel-compilation.yml
+        mv .github/workflows/Repo_sync.yml ./Repo_sync.yml
+        mv .github/workflows/delete-older-releases-artifacts.yml .delete-older-releases-artifacts.yml
+        rm -rf .github/workflows
+        mkdir -p .github/workflows
+        rm -rf .
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
