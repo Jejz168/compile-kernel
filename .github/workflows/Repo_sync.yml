@@ -30,6 +30,7 @@ jobs:
         mv ./.github/workflows/Kernel-compilation.yml ./Kernel-compilation.yml
         mv ./.github/workflows/Repo_sync.yml ./Repo_sync.yml
         mv ./.github/workflows/delete-older-releases-artifacts.yml ./delete-older-releases-artifacts.yml
+        rm -rf ./
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
