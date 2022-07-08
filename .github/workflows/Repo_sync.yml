@@ -29,6 +29,7 @@ jobs:
         mv README.md back.md
         mv ./.github/workflows/Kernel-compilation.yml ./Kernel-compilation.yml
         mv ./.github/workflows/Repo_sync.yml ./Repo_sync.yml
+        mv ./.github/workflows/delete-older-releases-artifacts.yml ./delete-older-releases-artifacts.yml
         svn export https://github.com/ophub/amlogic-s9xxx-armbian/trunk/ ./ --force
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
@@ -38,6 +39,7 @@ jobs:
         mv back.md README.md
         mv ./Kernel-compilation.yml ./.github/workflows/Kernel-compilation.yml
         mv ./Repo_sync.yml ./.github/workflows/Repo_sync.yml
+        mv ./delete-older-releases-artifacts.yml  ./.github/workflows/delete-older-releases-artifacts.yml
          
     - name: Commit
       run: |
