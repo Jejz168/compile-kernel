@@ -30,6 +30,11 @@ View Chinese description  |  [查看中文说明](README.cn.md)
     - [12.4 Set the box to boot from USB/TF/SD](#124-set-the-box-to-boot-from-usbtfsd)
     - [12.5 Disable infrared receiver](#125-disable-infrared-receiver)
     - [12.6 Selection of bootstrap file](#126-selection-of-bootstrap-file)
+    - [12.7 Manually set a static IP address or DHCP dynamically assigns a IP address](#127-manually-set-a-static-ip-address-or-dhcp-dynamically-assigns-a-ip-address)
+      - [12.7.1 Dynamic IP address assignment by DHCP](#1271-dynamic-ip-address-assignment-by-dhcp)
+      - [12.7.2 Manually set a static IP address](#1272-manually-set-a-static-ip-address)
+    - [12.8 How to add startup tasks](#128-how-to-add-startup-tasks)
+    - [12.9 How to update service scripts in the system](#129-how-to-update-service-scripts-in-the-system)
 
 ## 1. Register your own GitHub account
 
@@ -152,7 +157,7 @@ Login in to armbian → input command:
 armbian-update
 ```
 
-If there is a set of kernel files in the current directory, it will be updated with the kernel in the current directory (The 4 kernel files required for the update are `header-xxx.tar.gz`, `boot-xxx.tar.gz`, `dtb-amlogic-xxx.tar.gz`, `modules-xxx.tar.gz`. Other kernel files are not required. If they exist at the same time, it will not affect the update. The system can accurately identify the required kernel files). If there is no kernel file in the current directory, it will query and download the latest kernel of the same series from the server for update. You can also query the [optional kernel](https://github.com/ophub/kernel/tree/main/pub/stable) version and update the specified version: `armbian-update 5.10.100`. The optional kernel supported by the device can be freely updated, such as from 5.10.100 kernel to 5.15.25 kernel. When the kernel is updated, By default, download from [stable](https://github.com/ophub/kernel/tree/main/pub/stable) kernel version branch, if you download other [version branch](https://github.com/ophub/kernel/tree/main/pub), please specify according to the branch folder name in the `2` parameter, such as `armbian-update 5.7.19 dev` . The mainline u-boot will be installed automatically by default, which has better support for kernels using versions above 5.10. If you choose not to install, please specify it in the `3` input parameter, such as `armbian-update 5.10.100 stable no `
+If there is a set of kernel files in the current directory, it will be updated with the kernel in the current directory (The 4 kernel files required for the update are `header-xxx.tar.gz`, `boot-xxx.tar.gz`, `dtb-amlogic-xxx.tar.gz`, `modules-xxx.tar.gz`. Other kernel files are not required. If they exist at the same time, it will not affect the update. The system can accurately identify the required kernel files). If there is no kernel file in the current directory, it will query and download the latest kernel of the same series from the server for update. You can also query the [optional kernel](https://github.com/ophub/kernel/tree/main/pub/stable) version and update the specified version: `armbian-update 5.10.125`. The optional kernel supported by the device can be freely updated, such as from 5.10.125 kernel to 5.15.50 kernel. When the kernel is updated, By default, download from [stable](https://github.com/ophub/kernel/tree/main/pub/stable) kernel version branch, if you download other [version branch](https://github.com/ophub/kernel/tree/main/pub), please specify according to the branch folder name in the `2` parameter, such as `armbian-update 5.10.125 dev` . The mainline u-boot will be installed automatically by default, which has better support for kernels using versions above 5.10. If you choose not to install, please specify it in the `3` input parameter, such as `armbian-update 5.10.125 stable no `
 
 The `headers` files in the kernel is installed in the `/use/local/include` directory.
 
@@ -164,7 +169,7 @@ Login in to armbian → input command:
 armbian-software
 ```
 
-According to the user's demand feedback in the [Issue](https://github.com/ophub/amlogic-s9xxx-armbian/issues), the commonly used software is gradually integrated to realize one-click installation/update/uninstallation and other quick operations. Including `docker images`, `desktop software`, `application services`, etc. See more [Description](armbian_software.md).
+Use the `armbian-software -u` command to update the local software center list. According to the user's demand feedback in the [Issue](https://github.com/ophub/amlogic-s9xxx-armbian/issues), gradually integrate commonly used [software](../common-files/rootfs/usr/share/ophub/armbian-software/software-list.conf) to achieve one-click install/update/uninstall and other shortcut operations. Including `docker images`, `desktop software`, `application services`, etc. See more [Description](armbian_software.md).
 
 ## 12. common problem
 
@@ -236,4 +241,68 @@ to `/etc/modprobe.d/blacklist.conf` and reboot.
 ### 12.6 Selection of bootstrap file
 
 In general, just use `/boot/uEnv.txt`. The `/boot/extlinux/extlinux.conf` file is required for individual devices, such as T95 (s905x) / T95Z-Plus (s912) etc. If necessary, delete the `.bak` in the `/boot/extlinux/extlinux.conf.bak` file name that comes with the firmware to use it. `armbian-install` automatically checks when writing to eMMC and creates an `extlinux.conf` file if it exists.
+
+### 12.7 Manually set a static IP address or DHCP dynamically assigns a IP address
+
+The content of the network configuration file [/etc/network/interfaces](../common-files/rootfs/etc/network/interfaces) is as follows:
+
+```yaml
+source /etc/network/interfaces.d/*
+
+# Network is managed by Network manager
+# You can choose one of the following two IP setting methods:
+# Use # to disable another setting method
+
+
+# 01. Enable dynamic DHCP to assign IP
+auto eth0
+iface eth0 inet dhcp
+        hwaddress ether 12:34:56:78:9A:BC
+
+
+# 02. Enable static IP settings(IP is modified according to the actual)
+#auto eth0
+#allow-hotplug eth0
+#iface eth0 inet static
+#address 192.168.1.100
+#netmask 255.255.255.0
+#gateway 192.168.1.6
+#dns-nameservers 192.168.1.6
+```
+
+By default, the DHCP dynamic IP allocation strategy (method 1) is used, and the IP is automatically allocated by the network router connected to Armbian. If you want to change to static IP, you can disable or delete the setting method 1, and enable the static IP setting of method 2.
+
+#### 12.7.1 Dynamic IP address assignment by DHCP
+
+```yaml
+source /etc/network/interfaces.d/*
+
+auto eth0
+iface eth0 inet dhcp
+        hwaddress ether 12:34:56:78:9A:BC
+```
+
+#### 12.7.2 Manually set a static IP address
+
+The IP, gateway and DNS are modified according to your own network conditions.
+
+```yaml
+source /etc/network/interfaces.d/*
+
+auto eth0
+allow-hotplug eth0
+iface eth0 inet static
+address 192.168.1.100
+netmask 255.255.255.0
+gateway 192.168.1.1
+dns-nameservers 192.168.1.1
+```
+
+### 12.8 How to add startup tasks
+
+A custom startup task script file has been added to the system, and the path in the Armbian system is [/etc/custom_service/start_service.sh](../common-files/rootfs/etc/custom_service/start_service.sh) file, you can customize and add related tasks in this script according to your personal needs.
+
+### 12.9 How to update service scripts in the system
+
+Use the `armbian-sync` command to update all service scripts on the local system to the latest version.
 
