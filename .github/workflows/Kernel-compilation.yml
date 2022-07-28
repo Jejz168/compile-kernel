@@ -58,11 +58,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_URL_Kernel510: https://github.com/unifreq/linux-5.10.y
-      REPO_BRANCH_Kernel510: master
+      REPO_BRANCH_Kernel510: main
       REPO_PATH_Kernel510 : "Kernel_510"
 
       REPO_URL_Kernel54: https://github.com/unifreq/linux-5.4.y
-      REPO_BRANCH_Kernel54: master
+      REPO_BRANCH_Kernel54: main
       REPO_PATH_Kernel54 : "Kernel_54"
       
     outputs:
