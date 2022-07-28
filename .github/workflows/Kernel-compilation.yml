@@ -9,6 +9,10 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      checkupdates:
+        description: 'Checkupdates connection to Actions'
+        required: false
+        default: 'false'
       kernel_repo:
         description: "Choose to compile kernel sources"
         required: false
@@ -48,7 +52,67 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  build:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      REPO_URL_Kernel510: https://github.com/unifreq/linux-5.10.y
+      REPO_BRANCH_Kernel510: master
+      REPO_PATH_Kernel510 : "Kernel_510"
+
+      REPO_URL_Kernel54: https://github.com/unifreq/linux-5.4.y
+      REPO_BRANCH_Kernel54: master
+      REPO_PATH_Kernel54 : "Kernel_54"
+      
+    outputs:
+      output: ${{ steps.outputunifreq.outputs.unifreq }}
+      
+    steps:
+
+    - name: Get Commit Hash
+      id: getHash
+      run: |
+      
+        git clone --depth 1 $REPO_URL_Lede -b $REPO_BRANCH_Lede $REPO_PATH_Kernel510
+        cd $REPO_PATH_Kernel510
+        echo "::set-output name=commitHash_Kernel510::$(git rev-parse HEAD)"
+        cd
+        git clone --depth 1 $REPO_URL_HelloWorld -b $REPO_BRANCH_HelloWorld $REPO_PATH_Kernel54
+        cd $REPO_PATH_Kernel54
+        echo "::set-output name=commitHash_Kernel54::$(git rev-parse HEAD)"
+        cd
+        
+    - name: Show Commit Head and Combination Heads
+      id: combHeader
+      run: |
+        echo "commitHash_Kernel510: ${{ steps.getHash.outputs.commitHash_Kernel510 }}"
+        echo "commitHash_Kernel54: ${{ steps.getHash.outputs.commitHash_Kernel54 }}"
+        echo "::set-output name=commitHash_All::\
+          ${{steps.getHash.outputs.commitHash_Kernel510}}\
+          ${{steps.getHash.outputs.commitHash_Kernel54}}"
+          
+    - name: Compare Commit Hash
+      id: cacheHash
+      uses: actions/cache@v2
+      with:
+        path: .commitHash_All
+        key: HEAD-${{ steps.combHeader.outputs.commitHash_All }}
+   
+    - name: Set output for next job
+      id: outputunifreq
+      if: steps.cacheHash.outputs.cache-hit == 'true'
+      run: |
+        echo "::set-output name=unifreq::hello"
+        
+    - name: Save New Commit Hash
+      if: steps.cacheHash.outputs.cache-hit != 'true'
+      run: |
+        echo ${{ steps.getHash.outputs.commitHash_Kernel510 }} | tee .commitHash_Kernel510
+        echo ${{ steps.getHash.outputs.commitHash_Kernel54 }} | tee .commitHash_Kernel54
+        echo ${{ steps.combHeader.outputs.commitHash_All }} | tee .commitHash_All 
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////        
+  Build_Kernel:
+    needs: [Checka]   
+    if: ${{ needs.Checka.outputs.output != 'hello' || github.event.inputs.checkupdates == 'true'}}
     runs-on: ubuntu-22.04
     if: github.event.repository.owner.id == github.event.sender.id
 
@@ -88,26 +152,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           body: |
             The kernel can be used to compile Armbian and OpenWrt.
-            
-      - name: Delete older releases
-        uses: dev-drprasad/delete-older-releases@master
-        if: env.DELETE_RELEASE == 'true'
-        with:
-          keep_latest: 3
-          delete_tags: true
-          delete_tag_pattern: _
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Delete older workflow runs and artifacts
-        uses: Mattraks/delete-workflow-runs@main
-        if: env.DELETE_ARTIFACTS == 'true'
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          repository: ${{ github.repository }}
-          retain_days: 1
-          keep_minimum_runs: 2
-        
+                  
       - name: Telegram notification
         uses: appleboy/telegram-action@master
         with:
@@ -115,3 +160,23 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             💥kernel_${{ env.PACKAGED_OUTPUTTAGS }}编译完成
+ # //////////////////////////////////////////////////////////////////////////////////////////////
+  Cleaning:
+    if: ${{ always() }}
+    needs: [Checka,Build_Kernel]    
+    runs-on: ubuntu-latest
+    steps:  
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 2
+        keep_minimum_runs: 6
+        
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.2.0
+      with:
+        keep_latest: 10
+        delete_tags: true
+        delete_tag_pattern: _
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}            
