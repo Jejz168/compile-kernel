@@ -54,7 +54,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  check:
+  Checka:
     runs-on: ubuntu-latest
     env:
       REPO_URL_Kernel510: https://github.com/unifreq/linux-5.10.y
@@ -116,7 +116,6 @@ jobs:
     needs: [Checka]   
     if: ${{ needs.Checka.outputs.output != 'hello' || github.event.inputs.checkupdates == 'true'}}
     runs-on: ubuntu-22.04
-    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
       - name: Checkout
