@@ -74,11 +74,11 @@ jobs:
       id: getHash
       run: |
       
-        git clone --depth 1 $REPO_URL_Lede -b $REPO_BRANCH_Lede $REPO_PATH_Kernel510
+        git clone --depth 1 $REPO_URL_Lede -b $REPO_BRANCH_Kernel510 $REPO_PATH_Kernel510
         cd $REPO_PATH_Kernel510
         echo "::set-output name=commitHash_Kernel510::$(git rev-parse HEAD)"
         cd
-        git clone --depth 1 $REPO_URL_HelloWorld -b $REPO_BRANCH_HelloWorld $REPO_PATH_Kernel54
+        git clone --depth 1 $REPO_URL_HelloWorld -b $REPO_BRANCH_Kernel54 $REPO_PATH_Kernel54
         cd $REPO_PATH_Kernel54
         echo "::set-output name=commitHash_Kernel54::$(git rev-parse HEAD)"
         cd
