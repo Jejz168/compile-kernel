@@ -34,11 +34,6 @@ on:
           - 5.15.45
           - 5.10.100
           - 5.4.190
-      kernel_auto:
-        description: "Auto use the latest kernel"
-        required: false
-        default: true
-        type: boolean
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
