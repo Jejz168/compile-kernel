@@ -308,7 +308,7 @@ compile_kernel() {
     MAKE_SET_STRING=" ARCH=${ARCH} CC=${CC} LD=${LD} LLVM=1 LLVM_IAS=1 LOCALVERSION=${LOCALVERSION} "
 
     # Make clean/mrproper
-    make ${MAKE_SET_STRING} clean
+    make ${MAKE_SET_STRING} mrproper
 
     # Make menuconfig
     #make ${MAKE_SET_STRING} menuconfig
@@ -338,11 +338,19 @@ compile_kernel() {
         scripts/config -d LTO_CLANG_THIN
     fi
 
+    # Compile linux-headers-xxx_arm64.deb for kernel version 5.10.y and above
+    if [[ "${kernel_x}" -ge "6" ]] || [[ "${kernel_x}" -eq "5" && "${kernel_y}" -ge "10" ]]; then
+        make_debfile="1"
+    else
+        make_debfile="0"
+    fi
+
     # Make kernel
     echo -e "${STEPS} Start compilation kernel [ ${local_kernel_path} ]..."
     PROCESS="$(cat /proc/cpuinfo | grep "processor" | wc -l)"
     [[ -z "${PROCESS}" ]] && PROCESS="1" && echo "PROCESS: 1"
     make ${MAKE_SET_STRING} Image modules dtbs -j${PROCESS}
+    [[ "${make_debfile}" -eq "1" ]] && make ${MAKE_SET_STRING} bindeb-pkg KDEB_COMPRESS=xz KBUILD_DEBARCH=arm64 -j${PROCESS}
     [[ "${?}" -eq "0" ]] && echo -e "${SUCCESS} The kernel is compiled successfully."
 
     # Install modules
@@ -453,6 +461,7 @@ packit_kernel() {
     echo -e "${SUCCESS} The [ header-${kernel_outname}.tar.gz ] file is packaged."
 
     cd ${out_kernel}/${kernel_version}
+    [[ "${make_debfile}" -eq "1" ]] && cp -f ${kernel_path}/linux-headers-*${kernel_outname}*_arm64.deb . 2>/dev/null
     sha256sum * >sha256sums && sync
     echo -e "${SUCCESS} The [ sha256sums ] file has been generated"
 
@@ -466,8 +475,10 @@ clean_tmp() {
     cd ${make_path}
     echo -e "${STEPS} Clear the space..."
 
-    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/} 2>/dev/null && sync
+    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/} 2>/dev/null
+    rm -f ${kernel_path}/*arm64* 2>/dev/null
 
+    sync && sleep 3
     echo -e "${SUCCESS} All processes have been completed."
 }
 

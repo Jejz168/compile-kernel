@@ -142,8 +142,8 @@ EOF
     # Set up to start automatically
     echo -e "${INFO} Start service..."
     sudo systemctl daemon-reload
-    sudo systemctl start frps
-    sudo systemctl enable frps
+    sudo systemctl enable --now frps
+    sudo systemctl restart frps
 
     echo -e "${PROMPT} Instructions for use:"
     cat <<EOF
@@ -189,8 +189,8 @@ software_update() {
 
     # Set up to start automatically
     sudo systemctl daemon-reload
-    sudo systemctl start frps
-    sudo systemctl enable frps
+    sudo systemctl enable --now frps
+    sudo systemctl restart frps
 
     echo -e "${SUCCESS} Software update successfully."
     exit 0
@@ -239,5 +239,3 @@ case "${1}" in
     remove)  software_remove ;;
     *)       software_help ;;
 esac
-
-exit 0
