@@ -17,23 +17,10 @@ on:
         description: "Choose to compile kernel sources"
         required: false
         default: "unifreq"
-        type: choice
-        options:
-          - unifreq
-          - kernel.org
       kernel_version:
         description: "Select kernel version"
         required: false
         default: "5.4.190_5.10.100"
-        type: choice
-        options:
-          - 5.4.190_5.10.100
-          - 5.15.45_5.10.100
-          - 5.15.45_5.18.1
-          - 5.18.1
-          - 5.15.45
-          - 5.10.100
-          - 5.4.190
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
