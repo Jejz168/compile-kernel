@@ -13,19 +13,6 @@ on:
         description: 'Checkupdates connection to Actions'
         required: false
         default: 'false'
-      kernel_repo:
-        description: "Choose to compile kernel sources"
-        required: false
-        default: "unifreq"
-      kernel_version:
-        description: "Select kernel version"
-        required: false
-        default: "5.4.190_5.10.100"
-      kernel_auto:
-        description: "Auto use the latest kernel"
-        required: false
-        default: true
-        type: boolean
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
@@ -38,6 +25,9 @@ on:
     - cron: 16 19 * * *
     
 env:
+  KERNEL_REPO: unifreq
+  KERNEL_VERSION: 5.4.208_5.10.126
+  KERNEL_AUTO: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -124,9 +114,9 @@ jobs:
         uses: Jejz168/compile-kernel@main
         with:
           build_target: kernel
-          kernel_repo: ${{ github.event.inputs.kernel_repo }}
-          kernel_version: ${{ github.event.inputs.kernel_version }}
-          kernel_auto: ${{ github.event.inputs.kernel_auto }}
+          kernel_repo: ${{ env.KERNEL_REPO }}
+          kernel_version: ${{ env.KERNEL_VERSION }}
+          kernel_auto: ${{ env.KERNEL_AUTO }}
           kernel_sign: ${{ github.event.inputs.kernel_sign }}
           kernel_config: ${{ github.event.inputs.kernel_config }}
 
