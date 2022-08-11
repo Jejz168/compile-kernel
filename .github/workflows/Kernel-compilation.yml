@@ -21,6 +21,11 @@ on:
         description: "Select kernel version"
         required: false
         default: "5.4.190_5.10.100"
+      kernel_auto:
+        description: "Auto use the latest kernel"
+        required: false
+        default: true
+        type: boolean
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
