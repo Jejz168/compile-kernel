@@ -5,14 +5,14 @@
 # License version 2. This program is licensed "as is" without any
 # warranty of any kind, whether express or implied.
 #
-# This file is a part of the Armbian for Amlogic TV Boxes
+# This file is a part of the Rebuild Armbian
 # https://github.com/ophub/amlogic-s9xxx-armbian
 #
-# Description: Run on Armbian, Compile the kernel for Amlogic s9xxx tv box
+# Description: Run on Armbian, Compile the kernel.
 # Copyright (C) 2021- https://github.com/unifreq
 # Copyright (C) 2021- https://github.com/ophub/amlogic-s9xxx-armbian
 #
-# Command: armbian-kernel -update && armbian-kernel -d -k 5.10.125
+# Command: armbian-kernel -update && armbian-kernel -k 5.10.125
 # Command optional parameters please refer to the source code repository
 #
 #================================= Functions list =================================
@@ -24,10 +24,14 @@
 # query_version      : Query the latest kernel version
 #
 # get_kernel_source  : Get the kernel source code
-# env_check          : Check the environment for compile kernel
+# headers_install    : Deploy the kernel headers file
+# compile_env        : Set up the compile kernel environment
+# compile_dtbs       : Compile the dtbs
 # compile_kernel     : Compile the kernel
 # generate_uinitrd   : Generate initrd.img and uInitrd
-# packit_kernel      : Package the full set of kernel files
+# packit_dtbs        : Packit dtbs files
+# packit_kernel      : Packit boot, modules and header files
+# compile_selection  : Choose to compile dtbs or all kernels
 # clean_tmp          : Clear temporary files
 #
 # loop_recompile     : Loop to compile kernel
@@ -41,6 +45,9 @@ kernel_path="${compile_path}/kernel"
 config_path="${compile_path}/tools/config"
 script_path="${compile_path}/tools/script"
 out_kernel="${compile_path}/output"
+#
+# Set the release check file
+ophub_release_file="/etc/ophub-release"
 arch_info="$(arch)"
 host_release="$(cat /etc/os-release | grep VERSION_CODENAME | cut -d"=" -f2)"
 toolchain_path="/usr/local/toolchain"
@@ -54,12 +61,14 @@ repo_branch="main"
 build_kernel=("5.10.125" "5.15.50")
 auto_kernel="true"
 custom_name="-ophub"
+# Set the kernel compile object, options: dtbs / all
+package_list="all"
 #
 # Compile toolchain download mirror, run on Armbian
 dev_repo="https://github.com/ophub/kernel/releases/download/dev"
 #
 # Clang download from: https://github.com/llvm/llvm-project/releases
-clang_file="clang+llvm-14.0.0-aarch64-linux-gnu.tar.xz"
+clang_file="clang+llvm-15.0.6-aarch64-linux-gnu.tar.xz"
 #
 # Set font color
 STEPS="[\033[95m STEPS \033[0m]"
@@ -76,19 +85,13 @@ error_msg() {
 }
 
 init_var() {
-    cd ${make_path}
+    echo -e "${STEPS} Start Initializing Variables..."
 
     # If it is followed by [ : ], it means that the option requires a parameter value
-    get_all_ver="$(getopt "dk:a:n:r:" "${@}")"
+    get_all_ver="$(getopt "k:a:n:p:r:" "${@}")"
 
     while [[ -n "${1}" ]]; do
         case "${1}" in
-        -d | --default)
-            : ${build_kernel:="${build_kernel}"}
-            : ${auto_kernel:="${auto_kernel}"}
-            : ${custom_name:="${custom_name}"}
-            : ${repo_owner:="${repo_owner}"}
-            ;;
         -k | --kernel)
             if [[ -n "${2}" ]]; then
                 oldIFS=$IFS
@@ -110,10 +113,19 @@ init_var() {
             ;;
         -n | --customName)
             if [[ -n "${2}" ]]; then
-                custom_name="${2}"
+                custom_name="${2// /}"
+                [[ ${custom_name:0:1} != "-" ]] && custom_name="-${custom_name}"
                 shift
             else
                 error_msg "Invalid -n parameter [ ${2} ]!"
+            fi
+            ;;
+        -p | --PackageList)
+            if [[ -n "${2}" ]]; then
+                package_list="${2}"
+                shift
+            else
+                error_msg "Invalid -p parameter [ ${2} ]!"
             fi
             ;;
         -r | --repo)
@@ -139,11 +151,26 @@ init_var() {
     #
     [[ -n "${code_owner}" ]] || error_msg "The [ -r ] parameter is invalid."
     [[ -n "${code_branch}" ]] || code_branch="${repo_branch}"
+
+    # Check release file
+    [[ -f "${ophub_release_file}" ]] || error_msg "missing [ ${ophub_release_file} ] file."
+
+    # Get values
+    source "${ophub_release_file}"
+    PLATFORM="${PLATFORM}"
+    FDTFILE="${FDTFILE}"
+
+    # Early devices did not add platform parameters, auto-completion
+    [[ -z "${PLATFORM}" && -n "${FDTFILE}" ]] && {
+        [[ ${FDTFILE:0:5} == "meson" ]] && PLATFORM="amlogic" || PLATFORM="rockchip"
+        echo "PLATFORM='${PLATFORM}'" >>${ophub_release_file}
+    }
+    echo -e "${INFO} Armbian PLATFORM: [ ${PLATFORM} ]"
 }
 
 toolchain_check() {
     cd ${make_path}
-    echo -e "${STEPS} Check the cross-compilation environment ..."
+    echo -e "${STEPS} Start checking the toolchain for compiling the kernel..."
 
     # Install dependencies
     sudo apt-get -qq update
@@ -154,9 +181,9 @@ toolchain_check() {
         # Download clang for Armbian
         if [[ ! -d "${toolchain_path}/${clang_file//.tar.xz/}/bin" ]]; then
             echo -e "${INFO} Download clang [ ${clang_file} ] ..."
-            wget -c "${dev_repo}/${clang_file}" -O "${toolchain_path}/${clang_file}" >/dev/null 2>&1 && sync
-            tar -xJf ${toolchain_path}/${clang_file} -C ${toolchain_path} && sync
-            rm -f ${toolchain_path}/${clang_file} && sync
+            wget -c "${dev_repo}/${clang_file}" -O "${toolchain_path}/${clang_file}" >/dev/null 2>&1
+            tar -xJf ${toolchain_path}/${clang_file} -C ${toolchain_path}
+            rm -f ${toolchain_path}/${clang_file}
             [[ -d "${toolchain_path}/${clang_file//.tar.xz/}/bin" ]] || error_msg "The clang is not set!"
         fi
     fi
@@ -164,6 +191,8 @@ toolchain_check() {
 
 query_version() {
     cd ${make_path}
+    echo -e "${STEPS} Start querying the latest kernel version..."
+
     # Set empty array
     tmp_arr_kernels=()
 
@@ -207,8 +236,9 @@ query_version() {
 
 get_kernel_source() {
     cd ${make_path}
+    echo -e "${STEPS} Start downloading the kernel source code..."
+
     # kernel_folder > kernel_.tar.xz_file > download_from_kernel.org
-    echo -e "${STEPS} Start query and download the kernel."
     [[ -d "${kernel_path}" ]] || mkdir -p ${kernel_path}
     if [[ ! -d "${kernel_path}/${local_kernel_path}" ]]; then
         if [[ "${code_owner}" == "kernel.org" ]]; then
@@ -219,11 +249,11 @@ get_kernel_source() {
                 [[ "${?}" -eq "0" ]] || error_msg "[ ${local_kernel_path}.tar.xz ] file decompression failed."
             else
                 echo -e "${INFO} [ ${kernel_version} ] Kernel loading from [ ${server_kernel_repo}${local_kernel_path}.tar.xz ]"
-                wget -q -P ${kernel_path} ${server_kernel_repo}${local_kernel_path}.tar.xz && sync
+                wget -q -P ${kernel_path} ${server_kernel_repo}${local_kernel_path}.tar.xz
                 if [[ "${?}" -eq "0" && -s "${kernel_path}/${local_kernel_path}.tar.xz" ]]; then
                     echo -e "${SUCCESS} The kernel file is downloaded successfully."
                     cd ${kernel_path}
-                    tar -xJf ${local_kernel_path}.tar.xz && sync
+                    tar -xJf ${local_kernel_path}.tar.xz
                     [[ -d "${local_kernel_path}" ]] || error_msg "[ ${local_kernel_path}.tar.xz ] file decompression failed."
                 else
                     error_msg "Kernel file download failed!"
@@ -231,7 +261,7 @@ get_kernel_source() {
             fi
         else
             echo -e "${INFO} Start cloning from [ https://github.com/${server_kernel_repo} -b ${code_branch} ]"
-            git clone --depth 1 https://github.com/${server_kernel_repo} -b ${code_branch} ${kernel_path}/${local_kernel_path}
+            git clone -q --single-branch --depth 1 https://github.com/${server_kernel_repo} -b ${code_branch} ${kernel_path}/${local_kernel_path}
             [[ "${?}" -eq "0" ]] || error_msg "[ https://github.com/${server_kernel_repo} ] Clone failed."
         fi
     elif [[ "${code_owner}" != "kernel.org" ]]; then
@@ -245,7 +275,7 @@ get_kernel_source() {
         if [[ "${auto_kernel}" == "true" && "${kernel_sub}" -gt "${local_makefile_sublevel}" ]]; then
             # Pull the latest source code of the server
             cd ${kernel_path}/${local_kernel_path}
-            git checkout ${code_branch} && git reset --hard origin/${code_branch} && git pull && sync
+            git checkout ${code_branch} && git reset --hard origin/${code_branch} && git pull
             unset kernel_version
             kernel_version="${local_makefile_version}.${local_makefile_patchlevel}.${kernel_sub}"
             echo -e "${INFO} Synchronize the upstream source code, compile the kernel version [ ${kernel_version} ]."
@@ -256,10 +286,40 @@ get_kernel_source() {
             echo -e "${INFO} Use local source code, compile the kernel version [ ${kernel_version} ]."
         fi
     fi
-    sync
 }
 
-env_check() {
+headers_install() {
+    cd ${kernel_path}/${local_kernel_path}
+
+    # Set headers files list
+    head_list="$(mktemp)"
+    (
+        find . arch/${ARCH} -maxdepth 1 -name Makefile\*
+        find include scripts -type f -o -type l
+        find arch/${ARCH} -name Kbuild.platforms -o -name Platform
+        find $(find arch/${ARCH} -name include -o -name scripts -type d) -type f
+    ) >${head_list}
+
+    # Set object files list
+    obj_list="$(mktemp)"
+    {
+        [[ -n "$(grep "^CONFIG_OBJTOOL=y" include/config/auto.conf 2>/dev/null)" ]] && echo "tools/objtool/objtool"
+        find arch/${ARCH}/include Module.symvers include scripts -type f
+        [[ -n "$(grep "^CONFIG_GCC_PLUGINS=y" include/config/auto.conf 2>/dev/null)" ]] && find scripts/gcc-plugins -name \*.so
+    } >${obj_list}
+
+    # Install related files to the specified directory
+    tar --exclude '*.orig' -c -f - -C ${kernel_path}/${local_kernel_path} -T ${head_list} | tar -xf - -C ${out_kernel}/header
+    tar --exclude '*.orig' -c -f - -T ${obj_list} | tar -xf - -C ${out_kernel}/header
+
+    # copy .config manually to be where it's expected to be
+    cp -f .config ${out_kernel}/header/.config
+
+    # Delete temporary files
+    rm -f ${head_list} ${obj_list}
+}
+
+compile_env() {
     cd ${make_path}
     echo -e "${STEPS} Start checking local compilation environments."
 
@@ -268,11 +328,9 @@ env_check() {
     echo -e "${INFO} Compile kernel output name [ ${kernel_outname} ]. \n"
 
     # Create a temp directory
-    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/} 2>/dev/null && sync
-    mkdir -p ${out_kernel}/{boot/,dtb/{allwinner/,amlogic/,rockchip/},modules/,header/,${kernel_version}/} && sync
-}
+    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/}
+    mkdir -p ${out_kernel}/{boot/,dtb/{allwinner/,amlogic/,rockchip/},modules/,header/,${kernel_version}/}
 
-compile_kernel() {
     cd ${kernel_path}/${local_kernel_path}
     echo -e "${STEPS} Set compilation parameters."
 
@@ -290,12 +348,12 @@ compile_kernel() {
         path_armbian="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
         path_clang="${toolchain_path}/${clang_file//.tar.xz/}/bin:${path_armbian}"
         # Set $PATH variable for ~/.bashrc
-        sed -i '/^PATH=/d' ~/.bashrc 2>/dev/null && sync
-        echo "PATH=${path_clang}" >>~/.bashrc && sync
+        sed -i '/^PATH=/d' ~/.bashrc 2>/dev/null
+        echo "PATH=${path_clang}" >>~/.bashrc
         source ~/.bashrc
         # Set $PATH variable for /etc/profile
-        sed -i '/^PATH=/d' /etc/profile 2>/dev/null && sync
-        echo "PATH=${path_clang}" >>/etc/profile && sync
+        sed -i '/^PATH=/d' /etc/profile 2>/dev/null
+        echo "PATH=${path_clang}" >>/etc/profile
         source /etc/profile
     fi
 
@@ -314,20 +372,15 @@ compile_kernel() {
     #make ${MAKE_SET_STRING} menuconfig
 
     # Check .config file
-    if [[ ! -f ".config" ]]; then
-        # Copy config file
-        echo -e "${INFO} Copy config file to ${local_kernel_path}"
-        config_demo="$(ls ${config_path}/config-${kernel_verpatch}* 2>/dev/null | sort -rV | head -n 1)"
-        config_demo_file="${config_demo##*/}"
-        [[ -z "${config_demo_file}" ]] && error_msg "Missing [ config-${kernel_verpatch}* ] template!"
-        echo -e "${INFO} CONFIG_DEMO: [ ${config_path}/${config_demo_file} ]"
-        cp -f ${config_path}/${config_demo_file} .config && sync
+    if [[ ! -s ".config" ]]; then
+        [[ -s "${config_path}/config-${kernel_verpatch}" ]] || error_msg "Missing [ config-${kernel_verpatch} ] template!"
+        echo -e "${INFO} Copy [ ${config_path}/config-${kernel_verpatch} ] to [ .config ]"
+        cp -f ${config_path}/config-${kernel_verpatch} .config
     else
         echo -e "${INFO} Use the .config file in the current directory."
     fi
     #
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"\"|" .config
-    sync
 
     # Enable/Disabled Linux Kernel Clang LTO
     kernel_x="$(echo "${kernel_version}" | cut -d '.' -f1)"
@@ -338,19 +391,27 @@ compile_kernel() {
         scripts/config -d LTO_CLANG_THIN
     fi
 
-    # Compile linux-headers-xxx_arm64.deb for kernel version 5.10.y and above
-    if [[ "${kernel_x}" -ge "6" ]] || [[ "${kernel_x}" -eq "5" && "${kernel_y}" -ge "10" ]]; then
-        make_debfile="1"
-    else
-        make_debfile="0"
-    fi
+    # Set max process
+    PROCESS="$(cat /proc/cpuinfo | grep "processor" | wc -l)"
+    [[ -z "${PROCESS}" ]] && PROCESS="1" && echo "PROCESS: 1"
+}
+
+compile_dtbs() {
+    cd ${kernel_path}/${local_kernel_path}
+
+    # Make dtbs
+    echo -e "${STEPS} Start compilation dtbs [ ${local_kernel_path} ]..."
+    make ${MAKE_SET_STRING} dtbs -j${PROCESS}
+    [[ "${?}" -eq "0" ]] && echo -e "${SUCCESS} The dtbs is compiled successfully."
+}
+
+compile_kernel() {
+    cd ${kernel_path}/${local_kernel_path}
 
     # Make kernel
     echo -e "${STEPS} Start compilation kernel [ ${local_kernel_path} ]..."
-    PROCESS="$(cat /proc/cpuinfo | grep "processor" | wc -l)"
-    [[ -z "${PROCESS}" ]] && PROCESS="1" && echo "PROCESS: 1"
     make ${MAKE_SET_STRING} Image modules dtbs -j${PROCESS}
-    [[ "${make_debfile}" -eq "1" ]] && make ${MAKE_SET_STRING} bindeb-pkg KDEB_COMPRESS=xz KBUILD_DEBARCH=arm64 -j${PROCESS}
+    #make ${MAKE_SET_STRING} bindeb-pkg KDEB_COMPRESS=xz KBUILD_DEBARCH=arm64 -j${PROCESS}
     [[ "${?}" -eq "0" ]] && echo -e "${SUCCESS} The kernel is compiled successfully."
 
     # Install modules
@@ -360,7 +421,7 @@ compile_kernel() {
 
     # Install headers
     echo -e "${STEPS} Install headers ..."
-    make ${MAKE_SET_STRING} INSTALL_HDR_PATH=${out_kernel}/header headers_install
+    headers_install
     [[ "${?}" -eq "0" ]] && echo -e "${SUCCESS} The headers is installed successfully."
 }
 
@@ -371,42 +432,39 @@ generate_uinitrd() {
     # Backup current system files for /boot
     echo -e "${INFO} Backup the files in the [ /boot ] directory."
     boot_backup_path="/boot/backup"
-    rm -rf ${boot_backup_path} && mkdir -p ${boot_backup_path} && sync
-    mv -f /boot/{config-*,initrd.img-*,System.map-*,uInitrd-*,vmlinuz-*,uInitrd,zImage} ${boot_backup_path} 2>/dev/null && sync
+    rm -rf ${boot_backup_path} && mkdir -p ${boot_backup_path}
+    mv -f /boot/{config-*,initrd.img-*,System.map-*,uInitrd-*,vmlinuz-*,uInitrd,zImage,Image} ${boot_backup_path} 2>/dev/null
     # Copy /boot related files into armbian system
     cp -f ${kernel_path}/${local_kernel_path}/System.map /boot/System.map-${kernel_outname}
     cp -f ${kernel_path}/${local_kernel_path}/.config /boot/config-${kernel_outname}
     cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/Image /boot/vmlinuz-${kernel_outname}
-    sync
+    [[ "${PLATFORM}" == "amlogic" ]] && cp -f /boot/vmlinuz-${kernel_outname} /boot/zImage
+    [[ "${PLATFORM}" == "rockchip" ]] && ln -sf vmlinuz-${kernel_outname} /boot/Image
     #echo -e "${INFO} Kernel copy results in the [ /boot ] directory: \n$(ls -l /boot) \n"
 
     # Backup current system files for /usr/lib/modules
     echo -e "${INFO} Backup the files in the [ /usr/lib/modules ] directory."
     modules_backup_path="/usr/lib/modules/backup"
-    rm -rf ${modules_backup_path} && mkdir -p ${modules_backup_path} && sync
-    mv -f /usr/lib/modules/$(uname -r) ${modules_backup_path} && sync
+    rm -rf ${modules_backup_path} && mkdir -p ${modules_backup_path}
+    mv -f /usr/lib/modules/$(uname -r) ${modules_backup_path}
     # Copy modules files
     cp -rf ${out_kernel}/modules/lib/modules/${kernel_outname} /usr/lib/modules
-    sync
     #echo -e "${INFO} Kernel copy results in the [ /usr/lib/modules ] directory: \n$(ls -l /usr/lib/modules) \n"
 
     # COMPRESS: [ gzip | bzip2 | lz4 | lzma | lzop | xz | zstd ]
     compress_initrd_file="/etc/initramfs-tools/initramfs.conf"
-    sed -i "/^COMPRESS=/d" ${compress_initrd_file} && sync
-    echo "COMPRESS=gzip" >>${compress_initrd_file} && sync
+    sed -i "/^COMPRESS=/d" ${compress_initrd_file}
+    echo "COMPRESS=gzip" >>${compress_initrd_file}
 
     cd /boot
     echo -e "${STEPS} Generate uInitrd file..."
-    #echo -e "${INFO} File status in the /boot directory before the update: \n$(ls -l .) \n"
-
-    cp -f vmlinuz-${kernel_outname} zImage 2>/dev/null && sync
 
     # Generate uInitrd file directly under armbian system
     update-initramfs -c -k ${kernel_outname} 2>/dev/null
 
     if [[ -f uInitrd ]]; then
         echo -e "${SUCCESS} The initrd.img and uInitrd file is Successfully generated."
-        mv -f uInitrd uInitrd-${kernel_outname} 2>/dev/null && sync
+        mv -f uInitrd uInitrd-${kernel_outname} 2>/dev/null
     else
         echo -e "${WARNING} The initrd.img and uInitrd file not updated."
     fi
@@ -414,59 +472,77 @@ generate_uinitrd() {
     echo -e "${INFO} File situation in the /boot directory after update: \n$(ls -l *${kernel_outname})"
 
     # Restore the files in the [ /boot ] directory
-    mv -f *${kernel_outname} ${out_kernel}/boot && sync
-    mv -f ${boot_backup_path}/* . && sync && rm -rf ${boot_backup_path}
+    mv -f *${kernel_outname} ${out_kernel}/boot
+    mv -f ${boot_backup_path}/* . && rm -rf ${boot_backup_path}
 
     # Restore the files in the [ /usr/lib/modules ] directory
-    rm -rf /usr/lib/modules/${kernel_outname} 2>/dev/null && sync
-    mv ${modules_backup_path}/* /usr/lib/modules && sync && rm -rf ${modules_backup_path}
+    rm -rf /usr/lib/modules/${kernel_outname}
+    mv -f ${modules_backup_path}/* /usr/lib/modules && rm -rf ${modules_backup_path}
 }
 
-packit_kernel() {
-    # Pack the kernel 6 files
-    echo -e "${STEPS} Packing the 6 [ ${kernel_outname} ] kernel packages..."
-
-    cd ${out_kernel}/boot
-    chmod +x *
-    tar -czf boot-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
-    echo -e "${SUCCESS} The [ boot-${kernel_outname}.tar.gz ] file is packaged."
+packit_dtbs() {
+    # Pack 3 dtbs files
+    echo -e "${STEPS} Packing the [ ${kernel_outname} ] dtbs packages..."
 
     cd ${out_kernel}/dtb/allwinner
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . && chmod +x * && sync
-    tar -czf dtb-allwinner-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . && chmod +x *
+    tar -czf dtb-allwinner-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
     echo -e "${SUCCESS} The [ dtb-allwinner-${kernel_outname}.tar.gz ] file is packaged."
 
     cd ${out_kernel}/dtb/amlogic
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . && chmod +x * && sync
-    tar -czf dtb-amlogic-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . && chmod +x *
+    tar -czf dtb-amlogic-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
     echo -e "${SUCCESS} The [ dtb-amlogic-${kernel_outname}.tar.gz ] file is packaged."
 
     cd ${out_kernel}/dtb/rockchip
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . && chmod +x * && sync
-    tar -czf dtb-rockchip-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . && chmod +x *
+    tar -czf dtb-rockchip-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
     echo -e "${SUCCESS} The [ dtb-rockchip-${kernel_outname}.tar.gz ] file is packaged."
+}
+
+packit_kernel() {
+    # Pack 3 kernel files
+    echo -e "${STEPS} Packing the [ ${kernel_outname} ] boot, modules and header packages..."
+
+    cd ${out_kernel}/boot
+    chmod +x *
+    tar -czf boot-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
+    echo -e "${SUCCESS} The [ boot-${kernel_outname}.tar.gz ] file is packaged."
 
     cd ${out_kernel}/modules/lib/modules
-    tar -czf modules-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
+    tar -czf modules-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
     echo -e "${SUCCESS} The [ modules-${kernel_outname}.tar.gz ] file is packaged."
 
     cd ${out_kernel}/header
-    tar -czf header-${kernel_outname}.tar.gz * && sync
-    mv -f *.tar.gz ${out_kernel}/${kernel_version} && sync
+    tar -czf header-${kernel_outname}.tar.gz *
+    mv -f *.tar.gz ${out_kernel}/${kernel_version}
     echo -e "${SUCCESS} The [ header-${kernel_outname}.tar.gz ] file is packaged."
+}
 
+compile_selection() {
+    # Compile by selection
+    if [[ "${package_list}" == "dtbs" ]]; then
+        compile_dtbs
+        packit_dtbs
+    else
+        compile_kernel
+        generate_uinitrd
+        packit_dtbs
+        packit_kernel
+    fi
+
+    # Add sha256sum integrity verification file
     cd ${out_kernel}/${kernel_version}
-    [[ "${make_debfile}" -eq "1" ]] && cp -f ${kernel_path}/linux-headers-*${kernel_outname}*_arm64.deb . 2>/dev/null
-    sha256sum * >sha256sums && sync
+    sha256sum * >sha256sums
     echo -e "${SUCCESS} The [ sha256sums ] file has been generated"
 
     cd ${out_kernel}
-    tar -czf ${kernel_version}.tar.gz ${kernel_version} && sync
+    tar -czf ${kernel_version}.tar.gz ${kernel_version} && sync && sleep 3
 
     echo -e "${INFO} Kernel series files are stored in [ ${out_kernel} ]."
 }
@@ -475,10 +551,8 @@ clean_tmp() {
     cd ${make_path}
     echo -e "${STEPS} Clear the space..."
 
-    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/} 2>/dev/null
-    rm -f ${kernel_path}/*arm64* 2>/dev/null
+    rm -rf ${out_kernel}/{boot/,dtb/,modules/,header/,${kernel_version}/}
 
-    sync && sleep 3
     echo -e "${SUCCESS} All processes have been completed."
 }
 
@@ -508,10 +582,8 @@ loop_recompile() {
 
         # Execute the following functions in sequence
         get_kernel_source
-        env_check
-        compile_kernel
-        generate_uinitrd
-        packit_kernel
+        compile_env
+        compile_selection
         clean_tmp
 
         let j++
@@ -522,23 +594,24 @@ loop_recompile() {
 [[ "$(id -u)" == "0" ]] || error_msg "Please run this script as root: [ sudo ./${0} ]"
 [[ "${arch_info}" == "aarch64" ]] || error_msg "The script only supports running under Armbian system."
 # Show welcome and server start information
-echo -e "Welcome to compile kernel! \n"
-echo -e "Server running on Armbian: [ Release: ${host_release} / Host: ${arch_info} ] \n"
-echo -e "Server running path [ ${make_path} ] \n"
-echo -e "Server CPU configuration information: \n$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
-echo -e "Server memory usage: \n$(free -h) \n"
-echo -e "Server space usage before starting to compile: \n$(df -hT ${make_path}) \n"
+echo -e "${STEPS} Welcome to compile kernel! \n"
+echo -e "${INFO} Server running on Armbian: [ Release: ${host_release} / Host: ${arch_info} ] \n"
+echo -e "${INFO} Server running path [ ${make_path} ] \n"
+echo -e "${INFO} Server CPU configuration information: \n$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+echo -e "${INFO} Server memory usage: \n$(free -h) \n"
+echo -e "${INFO} Server space usage before starting to compile: \n$(df -hT ${make_path}) \n"
 #
 # Initialize variables, download the kernel source code and check the toolchain
 init_var "${@}"
 [[ "${auto_kernel}" == "true" ]] && query_version
-echo -e "Kernel from: [ ${code_owner} ]"
-echo -e "Kernel List: [ $(echo ${build_kernel[*]} | tr "\n" " ") ] \n"
+echo -e "${INFO} Kernel from: [ ${code_owner} ]"
+echo -e "${INFO} Kernel List: [ $(echo ${build_kernel[*]} | tr "\n" " ") ] \n"
 toolchain_check
 # Loop to compile the kernel
 loop_recompile
 #
 # Show server end information
-echo -e "${INFO} Server space usage after compilation: \n$(df -hT ${make_path}) \n"
+echo -e "${STEPS} Server space usage after compilation: \n$(df -hT ${make_path}) \n"
+echo -e "${SUCCESS} All process completed successfully."
 # All process completed
 wait
