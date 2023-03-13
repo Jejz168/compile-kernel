@@ -42,6 +42,7 @@
 # software_121  : For docker-headless:10081/10089
 # software_122  : For navidrome:4533
 # software_123  : For alist:5244
+# software_124  : For qinglong:5700
 #
 #============================================================================
 
@@ -62,39 +63,25 @@ software_101() {
 
 # For portainer
 software_102() {
-    # Installation options
-    echo -ne "${OPTIONS} Do you choose Chinese=(c) or English=(e) version of portainer? (c/e): "
-    read optid
-    optid="${optid/C/c}" && optid="${optid/E/e}"
-    if [[ "${optid}" == "c" ]]; then
-        # Instructions(Chinese): https://hub.docker.com/r/6053537/portainer-ce
-        image_name="6053537/portainer-ce:linux-arm64"
-        image_port="-p 9000:9000"
-        image_url="http://ip:9000"
-    else
-        # Instructions(English): https://hub.docker.com/r/portainer/portainer-ce
-        image_name="portainer/portainer-ce:latest"
-        image_port="-p 8000:8000 -p 9443:9443"
-        image_url="https://ip:9443"
-    fi
-
     # Set basic information
     container_name="portainer"
+    image_name="portainer/portainer-ce:latest"
     install_path="${docker_path}/${container_name}"
 
     case "${software_manage}" in
     install)
         echo -e "${STEPS} Start installing the docker image: [ ${container_name} ]..."
+        # Instructions(English): https://hub.docker.com/r/portainer/portainer-ce
         docker volume create ${container_name}_data
         docker run -d --name ${container_name} \
-            ${image_port} \
+            -p 8000:8000 -p 9443:9443 \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${install_path}/portainer_data:/data \
             --restart always \
             ${image_name}
 
         sync && sleep 3
-        echo -e "${NOTE} The ${container_name} address: [ ${image_url} ]"
+        echo -e "${NOTE} The ${container_name} address: [ https://ip:9443 ]"
         echo -e "${SUCCESS} The ${container_name} installed successfully."
         exit 0
         ;;
@@ -173,7 +160,6 @@ software_104() {
             -e PUID=${docker_puid} \
             -e PGID=${docker_pgid} \
             -e TZ=${docker_tz} \
-            -e TRANSMISSION_WEB_HOME=/transmission-web-control/ \
             -e USER=${tr_user} \
             -e PASS=${tr_pass} \
             -p 9091:9091 \
@@ -186,9 +172,9 @@ software_104() {
             ${image_name}
 
         # Set the transmission-web-control
-        echo -e "${STEPS} Start the installation interface: [ transmission-web-control ]..."
-        tr_cn_url="https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control-cn.sh"
-        bash <(curl -fsSL ${tr_cn_url}) ${install_path}
+        #echo -e "${STEPS} Start the installation interface: [ transmission-web-control ]..."
+        #tr_cn_url="https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control-cn.sh"
+        #bash <(curl -fsSL ${tr_cn_url}) ${install_path}
 
         sync && sleep 3
         echo -e "${NOTE} The ${container_name} address: [ http://ip:9091 ]"
@@ -865,13 +851,45 @@ software_123() {
             -e PGID=0 \
             -e UMASK=022 \
             -p 5244:5244 \
-            -v /etc/alist:/opt/alist/data \
+            -v ${install_path}/alist:/opt/alist/data \
             --restart=always \
             ${image_name}
 
         sync && sleep 3
         echo -e "${NOTE} The ${container_name} address [ http://ip:5244 ]"
         echo -e "${NOTE} View the initialization account and password commands [ docker exec -it alist ./alist password ]"
+        echo -e "${SUCCESS} ${container_name} installed successfully."
+        exit 0
+        ;;
+    update) docker_update ;;
+    remove) docker_remove ;;
+    *) error_msg "Invalid input parameter: [ ${@} ]" ;;
+    esac
+}
+
+# For qinglong
+software_124() {
+    # Set basic information
+    container_name="qinglong"
+    image_name="whyour/qinglong:latest"
+    install_path="${docker_path}/${container_name}"
+
+    case "${software_manage}" in
+    install)
+        echo -e "${STEPS} Start installing the docker image: [ ${container_name} ]..."
+        # Instructions: https://hub.docker.com/r/whyour/qinglong
+        docker run -dit --name=${container_name} \
+            -v ${install_path}/ql:/ql/data \
+            -e PUID=${docker_puid} \
+            -e PGID=${docker_pgid} \
+            -e TZ=${docker_tz} \
+            -p 5700:5700 \
+            --hostname=qinglong \
+            --restart unless-stopped \
+            ${image_name}
+
+        sync && sleep 3
+        echo -e "${NOTE} The ${container_name} address [ http://ip:5700 ]"
         echo -e "${SUCCESS} ${container_name} installed successfully."
         exit 0
         ;;

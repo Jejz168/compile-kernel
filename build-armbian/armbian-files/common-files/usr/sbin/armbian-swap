@@ -40,15 +40,15 @@ do_checkdisk() {
     # Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
     case "${ROOT_PTNAME}" in
     mmcblk?p[1-4])
-        EMMC_NAME="$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')"
+        DISK_NAME="${ROOT_PTNAME:0:-2}"
         PARTITION_NAME="p"
         ;;
     [hsv]d[a-z][1-4])
-        EMMC_NAME="$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')"
+        DISK_NAME="${ROOT_PTNAME:0:-1}"
         PARTITION_NAME=""
         ;;
     nvme?n?p[1-4])
-        EMMC_NAME="$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')"
+        DISK_NAME="${ROOT_PTNAME:0:-2}"
         PARTITION_NAME="p"
         ;;
     *)
@@ -57,7 +57,7 @@ do_checkdisk() {
     esac
 
     # Find out if the extended partition is created using the armbian-TF command in TF/USB
-    find_right_path="/mnt/${EMMC_NAME}${PARTITION_NAME}3"
+    find_right_path="/mnt/${DISK_NAME}${PARTITION_NAME}3"
     if [[ -d "${find_right_path}" ]]; then
         PARTITION_PATH="${find_right_path}"
     else
@@ -91,19 +91,23 @@ delete_current_swap() {
 # create new swap
 create_the_swap() {
     echo -e "${STEPS} Start creating a new swap..."
-    ROOTFS_TYPE="$(df -hT / | tail -n1 | awk '{print $2}')"
+    ROOTFS_TYPE="$(df -hT ${SWAP_PATH} | tail -n1 | awk '{print $2}')"
     echo -e "${INFO} The swap size is [ ${swap_gb} ] GiB, partition types is [ ${ROOTFS_TYPE} ], Please wait..."
 
     # create swapfile
     [[ "${ROOTFS_TYPE}" == "btrfs" ]] && {
         truncate -s 0 ${SWAP_PATH}/swapfile
+        [[ "${?}" -ne "0" ]] && error_msg "[ truncate ] operation failed."
         chattr +C ${SWAP_PATH}/swapfile
         btrfs property set ${SWAP_PATH}/swapfile compression none
     }
     dd if="/dev/zero" of="${SWAP_PATH}/swapfile" bs="1024" count="$((1048576 * ${swap_gb}))" conv="fsync"
+    [[ "${?}" -ne "0" ]] && error_msg "Failed to write [ ${SWAP_PATH}/swapfile ] using dd."
     chmod 600 ${SWAP_PATH}/swapfile
     mkswap -L SWAP ${SWAP_PATH}/swapfile
+    [[ "${?}" -ne "0" ]] && error_msg "[ mkswap ] operation failed."
     swapon ${SWAP_PATH}/swapfile
+    [[ "${?}" -ne "0" ]] && error_msg "[ swapon ] operation failed."
 
     # Add swap to the mount point
     sed -i '/swap/d' /etc/fstab
