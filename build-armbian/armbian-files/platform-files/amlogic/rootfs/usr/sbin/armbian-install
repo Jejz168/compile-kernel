@@ -196,8 +196,8 @@ search_aml_model() {
 
 # Functions: Displays a list of supported amlogic devices
 # Configure: View ${model_database}
-# Explain:   1.ID  2.MODEL  3.SOC  4.FDTFILE  5.UBOOT_OVERLOAD  6.MAINLINE_UBOOT  7.BOOTLOADER_IMG  8.KERNEL_BRANCH  9.PLATFORM  10.FAMILY  11.BOOT_CONF 12.BOARD  13.BUILD
-# Example:   402:GT-King-Pro:s922x:meson-g12b-gtking-pro.dtb:u-boot-gtkingpro.bin:gtkingpro-u-boot.bin.sd.bin:NA:all:amlogic:meson-g12b:s922x:yes
+# 1.ID  2.MODEL  3.SOC  4.FDTFILE  5.UBOOT_OVERLOAD  6.MAINLINE_UBOOT  7.BOOTLOADER_IMG  8.DESCRIPTION
+# 9.KERNEL_TAGS  10.PLATFORM  11.FAMILY  12.BOOT_CONF  13.BOARD  14.BUILD
 show_aml_model() {
     echo -e "${STEPS} Start selecting device..."
 
@@ -323,10 +323,6 @@ ampart_tool() {
 create_partition() {
     cd /
     echo -e "${STEPS} Start creating eMMC partition..."
-
-    # Disable the system's partition adjustment service
-    systemctl stop armbian-resize-filesystem.service
-    systemctl disable armbian-resize-filesystem.service
 
     # Backup the bootloader, if necessary for system recovery
     [[ -d "/usr/lib/u-boot" ]] || mkdir -p /usr/lib/u-boot
@@ -555,6 +551,7 @@ EOF
 
     # Remove useless scripts
     rm -f ${DIR_INSTALL}/usr/sbin/armbian-tf
+    rm -f ${DIR_INSTALL}/root/.no_rootfs_resize
 
     sync && sleep 3
     umount -f ${DIR_INSTALL}
@@ -580,5 +577,5 @@ copy_bootfs
 # Copy rootfs partition files
 copy_rootfs
 
-echo -e "${SUCCESS} Successful installed, please unplug the USB, re-insert the power supply to start the Armbian."
+echo -e "${SUCCESS} Installation successful. Run `poweroff`, remove the installation media then re-insert the power supply to boot Armbian."
 exit 0

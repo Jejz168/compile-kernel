@@ -30,6 +30,7 @@ According to the user's demand feedback in the [Issue](https://github.com/ophub/
 | 122 | Navidrome             | [Home](https://www.navidrome.org/) | [Docker](https://hub.docker.com/r/deluan/navidrome) :4533  | Navidrome is a self-hosted, open source music server and streamer. It gives you freedom to listen to your music collection from any browser or mobile device. |
 | 123 | Alist                 | [Home](https://alist.nn.ci/) | [Docker](https://hub.docker.com/r/xhofe/alist) :5244  | A file list program that supports multiple storage, powered by Gin and Solidjs. |
 | 124 | QingLong              | [Home](https://github.com/whyour/qinglong) | [Docker](https://hub.docker.com/r/whyour/qinglong) :5700  | A timed task management panel that supports typescript, javaScript, python3, and shell. |
+| 125 | Chatgpt-Web           | [Home](https://github.com/Chanzhaoyu/chatgpt-web) | [Docker](https://hub.docker.com/r/chenzhaoyu94/chatgpt-web) :3002  | ChatGPT demo webpage built with Express and Vue3. |
 | 201 | Desktop:GNOME         | [Home](https://www.gnome.org/) | -    | GNOME provides a focused desktop working environment that helps you get things done. |
 | 202 | Firefox               | [Home](https://www.mozilla.org/) | -    | An excellent web browser. |
 | 203 | VLC                   | [Home](https://www.videolan.org/) | -    | VLC is a free, open source, cross-platform multimedia player and framework that can play most multimedia files. |
@@ -53,6 +54,7 @@ According to the user's demand feedback in the [Issue](https://github.com/ophub/
 | 305 | Plex                  | [Home](https://www.plex.tv/) | -    | From personal media on your own server, to free and on-demand Movies & Shows, live TV, podcasts, and web shows, to streaming music, you can enjoy it all in one app, on any device. |
 | 306 | Emby-Server           | [Home](https://emby.media/) | -    | Sync your personal media to the cloud for easy backup, archiving, and converting. Store your content in multiple resolutions to enable direct streaming from any device. |
 | 307 | KVM                   | [Home](https://virt-manager.org/) | -    | KVM (for Kernel-Based Virtual Machines) is a complete virtualization solution for Linux with virtualization extensions. The virt-manager application is a desktop user interface for managing virtual machines through libvirt. It primarily targets KVM VMs, but also manages Xen and LXC (linux containers). KVM virtual machine can install [OpenWrt](https://github.com/unifreq/openwrt_packit), Debian, Ubuntu, OpenSUSE, ArchLinux, Centos, Gentoo, KyLin, UOS, etc. |
+| 308 | PVE                   | [Home](https://github.com/pimox/pimox7) | https://IP:8006 | Proxmox Virtual Environment is an open source server virtualization management solution based on QEMU/KVM and LXC. You can manage virtual machines, containers, highly available clusters, storage and networks with an integrated, easy-to-use web interface or via CLI. |
 
 ## Software Center Instructions
 
@@ -141,6 +143,7 @@ Welcome to add more software. Support requests are welcome in [Issue](https://gi
 | 122 | Navidrome             | [Home](https://www.navidrome.org/) | [Docker](https://hub.docker.com/r/deluan/navidrome) :4533  | Navidrome 是一个自托管的开源音乐服务器和流媒体。 它使您可以自由地从任何浏览器或移动设备收听音乐收藏。 |
 | 123 | Alist                 | [Home](https://alist.nn.ci/zh/) | [Docker](https://hub.docker.com/r/xhofe/alist) :5244  | 一个支持多种存储的文件列表程序，使用 Gin 和 Solidjs。 |
 | 124 | QingLong              | [Home](https://github.com/whyour/qinglong) | [Docker](https://hub.docker.com/r/whyour/qinglong) :5700  | 支持 python3、javaScript、shell、typescript 的定时任务管理面板。 |
+| 125 | Chatgpt-Web           | [Home](https://github.com/Chanzhaoyu/chatgpt-web) | [Docker](https://hub.docker.com/r/chenzhaoyu94/chatgpt-web) :3002  | 用 Express 和 Vue3 搭建的 ChatGPT 演示网页。 |
 | 201 | Desktop:GNOME         | [Home](https://www.gnome.org/) | -    | GNOME 提供了一个专注的桌面工作环境，可帮助您完成工作。 |
 | 202 | Firefox               | [Home](https://www.mozilla.org/) | -    | 一款优秀的网页浏览器。 |
 | 203 | VLC                   | [Home](https://www.videolan.org/) | -    | VLC 是一款自由、开源的跨平台多媒体播放器及框架，可播放大多数多媒体文件。 |
@@ -164,6 +167,7 @@ Welcome to add more software. Support requests are welcome in [Issue](https://gi
 | 305 | Plex                  | [Home](https://www.plex.tv/) | -    | 从您自己服务器上的个人媒体，到免费和点播的电影和节目，直播电视，播客和网络节目，再到流媒体音乐，您可以在任何设备上的一个应用程序中享受所有这些内容。 |
 | 306 | Emby-Server           | [Home](https://emby.media/) | -    | 将您的个人媒体同步到云，以便轻松备份、存档和转换。以多种分辨率存储您的内容，以便从任何设备直接流式传输。 |
 | 307 | KVM                   | [Home](https://virt-manager.org/) | -    | KVM（用于基于内核的虚拟机）是包含虚拟化扩展适用于 Linux 的完整虚拟化解决方案。virt-manager 应用程序是一个桌面用户界面，用于通过 libvirt 管理虚拟机。它主要针对 KVM VM，但也管理 Xen 和 LXC（Linux 容器）。KVM 虚拟机可以安装 [OpenWrt](https://github.com/unifreq/openwrt_packit)、Debian、Ubuntu、OpenSUSE、ArchLinux、Centos、Gentoo、KyLin、UOS 等等。 |
+| 308 | PVE                   | [Home](https://github.com/pimox/pimox7) | https://IP:8006 | Proxmox 虚拟环境是一个基于 QEMU/KVM 和 LXC 的开源服务器虚拟化管理解决方案。您可以使用集成的、易于使用的 web 界面或通过 CLI 管理虚拟机、容器、高可用集群、存储和网络。 |
 
 ## 软件中心使用说明
 

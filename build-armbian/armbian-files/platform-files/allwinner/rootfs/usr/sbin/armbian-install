@@ -159,10 +159,6 @@ create_partition() {
     cd /
     echo -e "${STEPS} Start creating eMMC partition..."
 
-    # Disable the system's partition adjustment service
-    systemctl stop armbian-resize-filesystem.service
-    systemctl disable armbian-resize-filesystem.service
-
     # Clear emmc disk data
     exists_pts="$(parted ${DEV_EMMC} print 2>/dev/null | grep 'primary' | wc -l)"
     if [[ "${exists_pts}" -gt "0" ]]; then
@@ -232,7 +228,7 @@ copy_bootfs() {
         echo -e "${INFO} Update the [ uEnv.txt ] file."
         BOOT_CONF="uEnv.conf"
         sed -i "s|root=.*console=ttyS0|root=${uenv_mount_string} console=ttyS0|g" ${uenv_conf_file}
-        sed -i "s|sun50i.*.dtb|${FDTFILE}|g" ${uenv_conf_file}
+        sed -i "s|sun.*.dtb|${FDTFILE}|g" ${uenv_conf_file}
     }
 
     # Update [ /boot/armbianEnv.txt ] settings
@@ -253,7 +249,7 @@ copy_bootfs() {
         echo -e "${INFO} Update the [ extlinux.conf ] file."
         BOOT_CONF="extlinux.conf"
         sed -i "s|root=.*console=ttyS0|root=${uenv_mount_string} console=ttyS0|g" ${boot_extlinux_file}
-        sed -i "s|sun50i.*.dtb|${FDTFILE}|g" ${boot_extlinux_file}
+        sed -i "s|sun.*.dtb|${FDTFILE}|g" ${boot_extlinux_file}
     }
 
     # Replace eMMC boot files
@@ -328,6 +324,7 @@ EOF
 
     # Remove useless scripts
     rm -f ${DIR_INSTALL}/usr/sbin/armbian-tf
+    rm -f ${DIR_INSTALL}/root/.no_rootfs_resize
 
     sync && sleep 3
     umount -f ${DIR_INSTALL}
@@ -351,5 +348,5 @@ copy_bootfs
 # Copy rootfs partition files
 copy_rootfs
 
-echo -e "${SUCCESS} Successful installed, please unplug the USB, re-insert the power supply to start the Armbian."
+echo -e "${SUCCESS} Installation successful. Run `poweroff`, remove the installation media then re-insert the power supply to boot Armbian."
 exit 0

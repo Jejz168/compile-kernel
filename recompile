@@ -19,6 +19,7 @@
 #======================================= Functions list =======================================
 #
 # error_msg          : Output error message
+# mount_again        : Mount the image file, fail again
 #
 # init_var           : Initialize all variables
 # toolchain_check    : Check and install the cross-compilation toolchain
@@ -71,10 +72,9 @@ armbian_rootfs_file="armbian.tar.xz"
 # Set the toolchain path
 toolchain_path="/usr/local/toolchain"
 # Set the default cross-compilation toolchain: [ gcc / clang ]
-toolchain_name="clang"
+toolchain_name="gcc"
 
 # QEMU BINARY
-qemu_binary_arm="qemu-arm-static"
 qemu_binary_arm64="qemu-aarch64-static"
 
 # Set font color
@@ -89,6 +89,29 @@ ERROR="[\033[91m ERROR \033[0m]"
 error_msg() {
     echo -e "${ERROR} ${1}"
     exit 1
+}
+
+mount_again() {
+    # Check mount parameters
+    m_dev="${1}"
+    m_target="${2}"
+    [[ -n "${m_dev}" && -n "${m_target}" ]] || {
+        error_msg "Mount parameter is missing: [ ${m_dev}, ${m_target} ]"
+    }
+
+    i="1"
+    max_try="10"
+    while [[ "${i}" -le "${max_try}" ]]; do
+        mount ${m_dev} ${m_target}
+        if [[ "${?}" -eq "0" ]]; then
+            break
+        else
+            sync && sleep 3
+            umount -f ${m_target} 2>/dev/null
+            i="$((i + 1))"
+        fi
+    done
+    [[ "${i}" -gt "${max_try}" ]] && error_msg "[ ${i} ] attempts to mount failed."
 }
 
 init_var() {
@@ -271,7 +294,7 @@ get_kernel_source() {
     # Download the kernel source code from github.com
     if [[ ! -d "${kernel_path}/${local_kernel_path}" ]]; then
         echo -e "${INFO} Start cloning from [ https://github.com/${server_kernel_repo} -b ${code_branch} ]"
-        git clone -q --single-branch --depth 1 https://github.com/${server_kernel_repo} -b ${code_branch} ${kernel_path}/${local_kernel_path}
+        git clone -q --single-branch --depth=1 --branch=${code_branch} https://github.com/${server_kernel_repo} ${kernel_path}/${local_kernel_path}
         [[ "${?}" -eq "0" ]] || error_msg "[ https://github.com/${server_kernel_repo} ] Clone failed."
     else
         # Get a local kernel version
@@ -431,12 +454,8 @@ generate_uinitrd() {
     loop_armbian="$(losetup -P -f --show "${chroot_file}")"
     [[ -n "${loop_armbian}" ]] || error_msg "losetup ${chroot_file} failed."
 
-    if ! mount ${loop_armbian}p2 ${tag_rootfs}; then
-        error_msg "mount ${loop_armbian}p2 failed!"
-    fi
-    if ! mount ${loop_armbian}p1 ${tag_rootfs}/boot; then
-        error_msg "mount ${loop_armbian}p1 failed!"
-    fi
+    mount_again ${loop_armbian}p2 ${tag_rootfs}
+    mount_again ${loop_armbian}p1 ${tag_rootfs}/boot
 
     ARMBIAN_PLATFORM="$(cat ${tag_rootfs}/etc/ophub-release 2>/dev/null | grep -E "^PLATFORM=.*" | cut -d"'" -f2)"
     echo -e "${INFO} Armbian PLATFORM: [ ${ARMBIAN_PLATFORM} ]"
@@ -463,7 +482,6 @@ generate_uinitrd() {
     sed -i "/^COMPRESS=/d" ${compress_initrd_file}
     echo "COMPRESS=gzip" >>${compress_initrd_file}
 
-    [[ -f "/usr/bin/${qemu_binary_arm}" ]] && cp -f /usr/bin/${qemu_binary_arm} ${tag_rootfs}/usr/bin/
     [[ -f "/usr/bin/${qemu_binary_arm64}" ]] && cp -f /usr/bin/${qemu_binary_arm64} ${tag_rootfs}/usr/bin/
     #echo -e "${INFO} The [ ${qemu_binary_arm64} ] file copy results: \n$(ls -l ${tag_rootfs}/usr/bin/${qemu_binary_arm64}) \n"
 
@@ -494,22 +512,31 @@ packit_dtbs() {
     echo -e "${STEPS} Packing the [ ${kernel_outname} ] dtbs packages..."
 
     cd ${out_kernel}/dtb/allwinner
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . && chmod +x *
-    tar -czf dtb-allwinner-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-allwinner-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-allwinner-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-allwinner-${kernel_outname}.tar.gz ] file is packaged."
+    }
 
     cd ${out_kernel}/dtb/amlogic
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . && chmod +x *
-    tar -czf dtb-amlogic-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-amlogic-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-amlogic-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-amlogic-${kernel_outname}.tar.gz ] file is packaged."
+    }
 
     cd ${out_kernel}/dtb/rockchip
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . && chmod +x *
-    tar -czf dtb-rockchip-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-rockchip-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-rockchip-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-rockchip-${kernel_outname}.tar.gz ] file is packaged."
+    }
 }
 
 packit_kernel() {
@@ -616,6 +643,9 @@ toolchain_check
 # Show compile settings
 echo -e "${INFO} Kernel compilation toolchain: [ ${toolchain_name} ]"
 echo -e "${INFO} Kernel from: [ ${code_owner} ]"
+echo -e "${INFO} Kernel Package: [ ${package_list} ]"
+echo -e "${INFO} kernel signature: [ ${custom_name} ]"
+echo -e "${INFO} Latest kernel version: [ ${auto_kernel} ]"
 echo -e "${INFO} Kernel List: [ $(echo ${build_kernel[*]} | xargs) ] \n"
 # Show server start information
 echo -e "${INFO} Server space usage before starting to compile: \n$(df -hT ${current_path}) \n"

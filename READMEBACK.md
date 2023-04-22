@@ -14,25 +14,25 @@ The latest version of the Armbian system can be downloaded in [Releases](https:/
 | ---- | ---- | ---- | ---- |
 | a311d | [Khadas-VIM3](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/99) | All | amlogic_a311d.img |
 | s922x | [Beelink-GT-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/370), [Beelink-GT-King-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/707), [Ugoos-AM6-Plus](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/213), [ODROID-N2](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/201), [X88-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/988), [Ali-CT2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1150) | All | amlogic_s922x.img |
-| s905x3 | [X96-Max+](https://github.com/ophub/amlogic-s9xxx-armbian/issues/351), [HK1-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/414), [Vontar-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1006), [H96-Max-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/850), [Ugoos-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/782), [TX3(QZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/644), [TX3(BZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1077), [X96-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/366), [X96-Max+_A100](https://github.com/ophub/amlogic-s9xxx-armbian/issues/779), [A95XF3-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/157), [Tencent-Aurora-3Pro(s905x3-b)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/506), [X96-Max+Q1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/788), [X96-Max+100W](https://github.com/ophub/amlogic-s9xxx-armbian/issues/909), [X96-Max+_2101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1086), [Infinity-B32](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1181) | All | amlogic_s905x3.img |
+| s905x3 | [X96-Max+](https://github.com/ophub/amlogic-s9xxx-armbian/issues/351), [HK1-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/414), [Vontar-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1006), [H96-Max-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1250), [Ugoos-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/782), [TX3(QZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/644), [TX3(BZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1077), [X96-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/366), [X96-Max+_A100](https://github.com/ophub/amlogic-s9xxx-armbian/issues/779), [A95XF3-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/157), [Tencent-Aurora-3Pro(s905x3-b)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/506), [X96-Max+Q1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/788), [X96-Max+100W](https://github.com/ophub/amlogic-s9xxx-armbian/issues/909), [X96-Max+_2101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1086), [Infinity-B32](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1181) | All | amlogic_s905x3.img |
 | s905x2 | [X96Max-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/453), [X96Max-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/95), [MECOOL-KM3-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/79), [Tanix-Tx5-Max](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/351), [A95X-F2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/851) | All | amlogic_s905x2.img |
 | s912 | [Tanix-TX8-Max](https://github.com/ophub/amlogic-s9xxx-armbian/issues/500), [Tanix-TX9-Pro(3G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/315), [Tanix-TX9-Pro(2G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/740), [Tanix-TX92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1012790770), [Nexbox-A1](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [Nexbox-A95X-A2](https://www.cafago.com/en/p-v2979eu-2g.html),  [A95X](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [H96-Pro-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1013071513), [VORKE-Z6-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72), [Mecool-M8S-PRO-L](https://github.com/ophub/amlogic-s9xxx-armbian/issues/158), [Vontar-X92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/525), [T95Z-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/668), [Octopus-Planet](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1020), [Phicomm-T1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/522) | All | amlogic_s912.img |
 | s905d | [MECOOL-KI-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/59), [Phicomm-N1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/925) | All | amlogic_s905d.img |
 | s905x | [HG680P](https://github.com/ophub/amlogic-s9xxx-armbian/issues/368), [B860H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/60), [TBee-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/98), [T95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/285), [TX9](https://github.com/ophub/amlogic-s9xxx-armbian/issues/645) | All | amlogic_s905x.img |
 | s905w | [X96-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/621), [TX3-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1062), [W95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/570), [X96W/FunTV](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1044), [MXQ-Pro-4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1140) | All | amlogic_s905w.img |
-| s905l2 | [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [MGV3000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921), [Wojia-TV-IPBS9505](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [M301A](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/405) | All | amlogic_s905l2.img |
-| s905l3 | [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/763), [HG680-LC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/978), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921#issuecomment-1453143251) | All | amlogic_s905l3.img |
+| s905l2 | [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [MGV3000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921), [Wojia-TV-IPBS9505](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [M301A](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/405), [E900v21E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1278) | All | amlogic_s905l2.img |
+| s905l3 | [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/763), [HG680-LC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/978), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921#issuecomment-1453143251), [UNT400G1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1277) | All | amlogic_s905l3.img |
 | s905l3a | [E900V22C/D](https://github.com/Calmact/e900v22c), [CM311-1a-YST](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/732), [M411A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [UNT403A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [UNT413A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [ZTE-B863AV3.2-M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/741) | All | amlogic_s905l3a.img |
-| s905l3b | [M302A/M304A](https://github.com/ophub/amlogic-s9xxx-armbian/pull/615), [E900V22E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/939), [Hisense-IP103H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1154), [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1180) | All | amlogic_s905l3b.img |
+| s905l3b | [E900V22D](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1256), [M302A/M304A](https://github.com/ophub/amlogic-s9xxx-armbian/pull/615), [E900V22E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/939), [Hisense-IP103H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1154), [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1180), [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1268) | All | amlogic_s905l3b.img |
 | s905lb | [Q96-mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/734), [BesTV-R3300L](https://github.com/ophub/amlogic-s9xxx-armbian/pull/993), [SumaVision-Q7](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1190) | All | amlogic_s905lb.img |
 | s905 | [Beelink-Mini-MX-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/127), [Sunvell-T95M](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/337), [MXQ-Pro+4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/715), [SumaVision-Q5](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1175) | All | amlogic_s905.img |
-| rk3588 | [Radxa-Rock5B](https://wiki.radxa.com/Rock5/5b), [HinLink-H88K](http://www.hinlink.com/index.php?id=138) | [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) | rockchip_boxname.img |
-| rk3568 | [FastRhino-R66S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1061), [FastRhino-R68S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/774), [HinLink-H66K](http://www.hinlink.com/index.php?id=137), [HinLink-H68K](http://www.hinlink.com/index.php?id=119), [Radxa-E25](https://wiki.radxa.com/Rock3/CM/CM3I/E25) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
-| rk3399 | [EAIDK-610](https://github.com/ophub/amlogic-s9xxx-armbian/pull/991), [KING3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1080), [TN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1094), [KYLIN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1132) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
+| rk3588 | [Radxa-Rock5B](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1240), [HinLink-H88K](http://www.hinlink.com/index.php?id=138) | [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) | rockchip_boxname.img |
+| rk3568 | [FastRhino-R66S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1061), [FastRhino-R68S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/774), [HinLink-H66K](http://www.hinlink.com/index.php?id=137), [HinLink-H68K](http://www.hinlink.com/index.php?id=119), [Radxa-E25](https://wiki.radxa.com/Rock3/CM/CM3I/E25), [NanoPi-R5S](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1217), [Photonicat](https://ariaboard.com/wiki/Photonicat_%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
+| rk3399 | [EAIDK-610](https://github.com/ophub/amlogic-s9xxx-armbian/pull/991), [King3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1080), [TN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1094), [Kylin3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1132), [ZCube1-Max](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1247), [CRRC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1280) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
 | rk3328 | [BeikeYun](https://github.com/ophub/amlogic-s9xxx-armbian/issues/852), [L1-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1007) | All | rockchip_boxname.img |
-| h6 | [Vplus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1100), [TQC-A01](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1111), [Tanix-TX6](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1120) | All | allwinner_boxname.img |
+| h6 | [Vplus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1100), [Tanix-TX6](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1120) | All | allwinner_boxname.img |
 
-💡Tip: Currently [s905 Boxes](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1173) can only be used in `TF/SD/USB`, Other models of boxes support writing to `eMMC` for use. For more information, please refer to [Description of Supported Device List](build-armbian/documents/amlogic_model_database.md).
+💡Tip: Currently [s905 Boxes](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1173) can only be used in `TF/SD/USB`, Other models of boxes support writing to `eMMC` for use. For more information, please refer to [Description of Supported Device List](build-armbian/armbian-files/common-files/etc/model_database.conf). You can refer to the method in Section 12.15 of the documentation to [add new support devices](build-armbian/documents/README.md#1215-how-to-add-new-supported-devices).
 
 ## Install to EMMC and update instructions
 
@@ -66,17 +66,18 @@ Login in to armbian → input command:
 armbian-update
 ```
 
-| Optional  | Default     | Value         | Description                   |
-| --------- | ----------- | ------------- | ----------------------------- |
-| -k        | latest      | [kernel name](https://github.com/ophub/kernel/releases/tag/kernel_stable)  | Set the kernel name |
-| -v        | stable      | stable/rk3588/dev  | Set the kernel version branch |
-| -m        | no          | yes/no        | Use Mainline u-boot           |
-| -b        | yes         | yes/no        | Automatically backup the current system kernel  |
+| Optional  | Default      | Value          | Description                                                  |
+| --------- | ------------ | -------------- | ------------------------------------------------------------ |
 | -r        | ophub/kernel | `<owner>/<repo>` | Set the repository for downloading kernels from github.com |
-| -c        | ""          | domain-name   | Set the cdn domain name for accelerated access to github.com  |
-| -s        | ""          | ""            | [SOS] Restore eMMC with system kernel from USB |
+| -u        | automate     | stable/rk3588/flippy/dev  | Set the [tags suffix](https://github.com/ophub/kernel/releases) of the kernel used |
+| -k        | latest       | kernel-version | Set the [kernel version](https://github.com/ophub/kernel/releases/tag/kernel_stable) |
+| -c        | None         | domain-name    | Set the cdn domain name for accelerated access to github.com |
+| -b        | yes          | yes/no         | Automatically backup the current system kernel               |
+| -m        | no           | yes/no         | Use Mainline u-boot                                          |
+| -s        | None         | None           | [SOS] Restore eMMC with system kernel from USB               |
+| -h        | None         | None           | View usage help                                              |
 
-Example: `armbian-update -k 5.15.50 -v dev`
+Example: `armbian-update -k 5.15.50 -u dev`
 
 When updating the kernel, the kernel used by the current system will be automatically backed up. The storage path is in the `/ddbr/backup` directory, and the three recently used versions of the kernel will be preserved. If the newly installed kernel is unstable, the backed up kernel can be restored at any time. If the update fails and the system cannot be started, you can start any version of Armbian via USB to recover the system in eMMC. For more instructions, see the help [documentation](build-armbian/documents/).
 
@@ -117,57 +118,6 @@ armbian-openvfd
 ```
 
 Debug according to [LED screen display control instructions](build-armbian/documents/led_screen_display_control.md).
-
-- ### Use Armbian in TF/SD/USB
-
-`Amlogic` box needs to manually activate the remaining space of TF/SD/USB (Rockchip and Allwinner have been activated automatically), Login in to armbian → input command:
-
-```yaml
-armbian-tf
-```
-
-According to the prompt, enter `e` to expand the remaining space to the current system partition and file system, and enter `c` to create a new third partition.
-
-<details>
-  <summary>Or manually allocate the remaining space</summary>
-
-#### View [Operation screenshot](https://user-images.githubusercontent.com/68696949/137860992-fbd4e2fa-e90c-4bbb-8985-7f5db9f49927.jpg)
-
-```yaml
-# 1. Confirm the name of the TF/SD/USB according to the size of the space. The TF/SD is [ `mmcblk` ], USB is [ `sd` ]
-Command: Enter [ fdisk -l | grep "sd" ]
-
-# 2. Get the starting value of the remaining space, Copy and save, used below  (E.g: 5382144)
-Command: Enter [ fdisk -l | grep "sd" | sed -n '$p' | awk '{print $3}' | xargs -i expr {} + 1 ]
-
-# 3. Start allocating unused space (E.g: sda, mmcblk0 or mmcblk1)
-Command: Enter [ fdisk /dev/sda ] Start allocating the remaining space
-Command: Select [ n ] to create a partition
-Command: Select [ p ] to specify the partition type as primary partition
-Command: Set the partition number to [ 3 ]
-Command: The start value of the partition, enter the value obtained in the second step, E.g: [ 5382144 ]
-Command: End value, press [ Enter ] to use the default value
-Command: If there is a hint: Do you want to remove the signature? [Y]es/[N]o: Enter [ Y ]
-Command: Enter [ t ] to specify the partition type
-Command: Enter Partition number [ 3 ]
-Command: Enter Hex code (type L to list all codes): [ 83 ]
-Command: Enter [ w ] to save
-Command: Enter [ reboot ] to restart
-
-# 4. After restarting, format the new partition
-Command: Enter [ mkfs.ext4 -F -L SHARED /dev/sda3 ] to format the new partition
-
-# 5. Set the mount directory for the new partition
-Command: Enter [ mkdir -p /mnt/share ] to Create mount directory
-Command: Enter [ mount -t ext4 /dev/sda3 /mnt/share ] to Mount the newly created partition to the directory
-
-# 6. Add automatic mount at boot
-Command: Enter [ vi /etc/fstab ]
-# Press [ i ] to enter the input mode, copy the following values to the end of the file
-/dev/sda3 /mnt/share ext4 defaults 0 0
-# Press [ esc ] to exit, Input [ :wq! ] and [ Enter ] to Save, Finish.
-```
-</details>
 
 - ### Backup/restore the original EMMC system
 
@@ -222,14 +172,15 @@ sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbi
 
 | Optional | Meaning    | Description                               |
 | -------- | ---------- | ----------------------------------------- |
-| -b       | Board      | Specify the Build system type. Write the build system name individually, such as `-b s905x3` . Multiple system use `_` connect such as `-b s905x3_s905d` . Use `all` for all board models. The model code is detailed in the `BOARD` setting in [model_database.conf](build-armbian/armbian-files/common-files/etc/model_database.conf) file. |
-| -k       | Kernel     | Specify the [kernel version](https://github.com/ophub/kernel/releases/tag/kernel_stable), Such as `-k 5.10.125` . Multiple kernel use `_` connection such as `-k 5.10.125_5.15.50` . The kernel version freely specified by the `-k` parameter is only valid for the kernel in the `stable`, and other kernels such as `rk3588` are specified by the [model_database.conf](build-armbian/armbian-files/common-files/etc/model_database.conf) file. |
+| -b       | Board      | Specify the Build system type. Write the build system name individually, such as `-b s905x3` . Multiple system use `_` connect such as `-b s905x3_s905d` . Use `all` for all board models. The model code is detailed in the `BOARD` setting in [model_database.conf](build-armbian/armbian-files/common-files/etc/model_database.conf) file. Default value: `all` |
+| -r       | KernelRepo | Specifies the `<owner>/<repo>` of the github.com kernel repository. Default value: `ophub/kernel` |
+| -u       | kernelUsage | Set the `tags suffix` of the kernel used, such as [stable](https://github.com/ophub/kernel/releases/tag/kernel_stable), [flippy](https://github.com/ophub/kernel/releases/tag/kernel_flippy), [dev](https://github.com/ophub/kernel/releases/tag/kernel_dev). Default value: `stable` |
+| -k       | Kernel     | Specify the [kernel version](https://github.com/ophub/kernel/releases/tag/kernel_stable), Such as `-k 5.10.125` . Multiple kernel use `_` connection such as `-k 5.10.125_5.15.50` . The kernel version freely specified by the `-k` parameter is only valid for the kernel in the `stable/flippy/dev`. Other kernel families such as [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) can only use specific kernels. |
 | -a       | AutoKernel | Set whether to automatically adopt the latest version of the kernel of the same series. When it is `true`, it will automatically find in the kernel library whether there is an updated version of the kernel specified in `-k` such as 5.10.125 version. If there is the latest version of same series, it will automatically Replace with the latest version. When set to `false`, the specified version of the kernel will be compiled. Default value: `true` |
-| -r       | KernelRepo | Specifies the `<owner>/<repo>` of the github.com kernel repository, Such as `-r ophub/kernel` |
-| -s       | Size       | Specify the ROOTFS partition size for the system. The default is 2560MiB, and the specified size must be greater than 2048MiB. Such as `-s 2560` |
-| -t       | RootfsType | Set the file system type of the ROOTFS partition of the system, the default is `ext4` type, and the options are `ext4` or `btrfs` type. Such as `-t btrfs` |
-| -n       | CustomName | Set the signature part of the system name. The default value is empty. You can add signatures such as `_server`, `_gnome_desktop` or `_ophub` as needed. Do not include spaces when setting custom signatures. |
-| -g       | GH_TOKEN   | Optional. Set ${{ secrets.GH_TOKEN }} for [api.github.com](https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#requests-from-personal-accounts) query. Default: `None` |
+| -t       | RootfsType | Set the file system type of the ROOTFS partition of the system, and the options are `ext4` or `btrfs` type. Such as `-t btrfs`. Default value: `ext4` |
+| -s       | Size       | Specify the ROOTFS partition size for the system, and the specified size must be greater than 2048MiB. Such as `-s 2560`, Default value: `2560` |
+| -n       | CustomName | Set the signature part of the system name. You can add signatures such as `_server`, `_gnome_desktop` or `_ophub` as needed. Do not include spaces when setting custom signatures. Default value: `None` |
+| -g       | GH_TOKEN   | Optional. Set ${{ secrets.GH_TOKEN }} for [api.github.com](https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#requests-from-personal-accounts) query. Default value: `None` |
 
 - `sudo ./rebuild`: Use the default configuration to pack all TV Boxes.
 - `sudo ./rebuild -b s905x3 -k 5.10.125`: recommend. Use the default configuration, specify a kernel and a system for compilation.
@@ -269,11 +220,12 @@ For the related settings of GitHUB RELEASES_TOKEN, please refer to: [RELEASES_TO
 | ------------------ | ----------------- | ----------------------------------- |
 | armbian_path       | None              | Set the path of the original Armbian file, support the file path in the current workflow such as `build/output/images/*.img`, and also support the use of the network download address such as: `https://dl.armbian.com/*/Armbian_*.img.xz`  |
 | armbian_board      | all               | Set the `board` of the packaged TV Boxes, function reference `-b`    |
+| kernel_repo        | ophub/kernel      | Specifies the `<owner>/<repo>` of the github.com kernel repository, function reference `-r` |
+| kernel_usage       | stable            | Set the `tags suffix` of the kernel used, function reference `-u` |
 | armbian_kernel     | 6.1.1_5.15.1      | Set kernel [version](https://github.com/ophub/kernel/releases/tag/kernel_stable), function reference `-k`        |
 | auto_kernel        | true              | Set whether to automatically use the latest version of the same series of kernels, function reference `-a` |
-| kernel_repo        | ophub/kernel | Specifies the `<owner>/<repo>` of the github.com kernel repository, function reference `-r` |
-| armbian_size       | 2560              | Set the size of the system ROOTFS partition, function reference `-s`             |
 | armbian_fstype     | ext4              | Set the file system type of the system ROOTFS partition, function reference `-t` |
+| armbian_size       | 2560              | Set the size of the system ROOTFS partition, function reference `-s`             |
 | armbian_sign       | None              | Set the signature part of the system name, function reference `-n`               |
 | gh_token           | None              | Optional. Set ${{ secrets.GH_TOKEN }}, function reference `-g` |
 
@@ -304,7 +256,7 @@ For the compilation method of the kernel, see [compile-kernel](compile-kernel)
   uses: ophub/amlogic-s9xxx-armbian@main
   with:
     build_target: kernel
-    kernel_version: 5.10.125_5.15.50
+    kernel_version: 5.15.1_6.1.1
     kernel_auto: true
     kernel_sign: -yourname
 ```

@@ -67,7 +67,7 @@ gun_file="arm-gnu-toolchain-12.2.rel1-aarch64-aarch64-none-elf.tar.xz"
 # Set the toolchain path
 toolchain_path="/usr/local/toolchain"
 # Set the default cross-compilation toolchain: [ gcc / clang ]
-toolchain_name="clang"
+toolchain_name="gcc"
 
 # Set font color
 STEPS="[\033[95m STEPS \033[0m]"
@@ -263,7 +263,7 @@ get_kernel_source() {
 
     if [[ ! -d "${kernel_path}/${local_kernel_path}" ]]; then
         echo -e "${INFO} Start cloning from [ https://github.com/${server_kernel_repo} -b ${code_branch} ]"
-        git clone -q --single-branch --depth 1 https://github.com/${server_kernel_repo} -b ${code_branch} ${kernel_path}/${local_kernel_path}
+        git clone -q --single-branch --depth=1 --branch=${code_branch} https://github.com/${server_kernel_repo} ${kernel_path}/${local_kernel_path}
         [[ "${?}" -eq "0" ]] || error_msg "[ https://github.com/${server_kernel_repo} ] Clone failed."
     else
         # Get a local kernel version
@@ -484,22 +484,31 @@ packit_dtbs() {
     echo -e "${STEPS} Packing the [ ${kernel_outname} ] dtbs packages..."
 
     cd ${out_kernel}/dtb/allwinner
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . && chmod +x *
-    tar -czf dtb-allwinner-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-allwinner-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/allwinner/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-allwinner-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-allwinner-${kernel_outname}.tar.gz ] file is packaged."
+    }
 
     cd ${out_kernel}/dtb/amlogic
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . && chmod +x *
-    tar -czf dtb-amlogic-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-amlogic-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/amlogic/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-amlogic-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-amlogic-${kernel_outname}.tar.gz ] file is packaged."
+    }
 
     cd ${out_kernel}/dtb/rockchip
-    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . && chmod +x *
-    tar -czf dtb-rockchip-${kernel_outname}.tar.gz *
-    mv -f *.tar.gz ${out_kernel}/${kernel_version}
-    echo -e "${SUCCESS} The [ dtb-rockchip-${kernel_outname}.tar.gz ] file is packaged."
+    cp -f ${kernel_path}/${local_kernel_path}/arch/arm64/boot/dts/rockchip/*.dtb . 2>/dev/null
+    [[ "${?}" -eq "0" ]] && {
+        chmod +x *
+        tar -czf dtb-rockchip-${kernel_outname}.tar.gz *
+        mv -f *.tar.gz ${out_kernel}/${kernel_version}
+        echo -e "${SUCCESS} The [ dtb-rockchip-${kernel_outname}.tar.gz ] file is packaged."
+    }
 }
 
 packit_kernel() {
@@ -604,7 +613,11 @@ toolchain_check
 # Show compile settings
 echo -e "${INFO} Kernel compilation toolchain: [ ${toolchain_name} ]"
 echo -e "${INFO} Kernel from: [ ${code_owner} ]"
+echo -e "${INFO} Kernel Package: [ ${package_list} ]"
+echo -e "${INFO} kernel signature: [ ${custom_name} ]"
+echo -e "${INFO} Latest kernel version: [ ${auto_kernel} ]"
 echo -e "${INFO} Kernel List: [ $(echo ${build_kernel[*]} | xargs) ] \n"
+
 # Show server start information
 echo -e "${INFO} Server space usage before starting to compile: \n$(df -hT ${current_path}) \n"
 
