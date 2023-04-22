@@ -27,6 +27,7 @@ on:
 env:
   KERNEL_REPO: unifreq
   KERNEL_VERSION: 5.4.228_5.10.161_5.15.100_6.1.16
+  kernel_toolchain: gcc
   KERNEL_AUTO: true
   TZ: Asia/Shanghai
 
@@ -129,10 +130,13 @@ jobs:
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
           [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-          sudo -E apt-get -qq update
-          sudo -E apt-get -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_armbian)
-          sudo -E apt-get -qq autoremove --purge
-          sudo -E apt-get -qq clean
+          sudo -E apt-get -y update
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y install $(curl -fsSL https://is.gd/depend_ubuntu2204_armbian)
+          sudo -E systemctl daemon-reload
+          #sudo -E apt-get -y full-upgrade
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get clean
           sudo timedatectl set-timezone "$TZ"
           echo "COMPILE_STARTINGTIME=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
           
@@ -144,7 +148,7 @@ jobs:
           kernel_version: ${{ env.KERNEL_VERSION }}
           kernel_auto: ${{ env.KERNEL_AUTO }}
           kernel_sign: ${{ github.event.inputs.kernel_sign }}
-          kernel_config: ${{ github.event.inputs.kernel_config }}
+          kernel_toolchain: ${{ env.kernel_toolchain }}
 
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
