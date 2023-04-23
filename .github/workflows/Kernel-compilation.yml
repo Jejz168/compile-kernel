@@ -162,14 +162,16 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           body: |
             The kernel can be used to compile Armbian and OpenWrt.
-                  
-      - name: Telegram notification
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            💥kernel_${{ env.PACKAGED_OUTPUTTAGS }}编译完成
+            
+      - name: Telegram notification          
+        run: |
+          MSG="
+           💥kernel_${{ env.PACKAGED_OUTPUTTAGS }}编译完成
+           ✪ ✣ ✤ ✥ ✦ ❉ ❦ ❧ ❃ ❂ ❁ ❀
+           📍: https://github.com/Jejz168/compile-kernel/releases
+          "
+          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_TO }}&text=${MSG}"
+          curl "http://www.pushplus.plus/send?token=${{ secrets.PUSH_PLUS_TOKEN }}" -d "title=kernel_${{ env.PACKAGED_OUTPUTTAGS }}编译完成&content=${MSG}"
  # //////////////////////////////////////////////////////////////////////////////////////////////
   Cleaning:
     if: ${{ always() }}
