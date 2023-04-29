@@ -26,7 +26,6 @@ env:
   KERNEL_TOOLCHAIN: gcc
   KERNEL_PACKAGE: all
   KERNEL_AUTO: true
-  KERNEL_CONFIG: kernel-config/stable
   TZ: Asia/Shanghai
 
 jobs:
@@ -152,7 +151,6 @@ jobs:
           kernel_package: ${{ env.KERNEL_PACKAGE }}
           kernel_sign: ${{ github.event.inputs.kernel_sign }}
           kernel_toolchain: ${{ env.KERNEL_TOOLCHAIN }}
-          kernel_config: ${{ env.KERNEL_CONFIG }}
 
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
