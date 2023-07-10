@@ -85,10 +85,11 @@ default_tags="stable"
 # Set the tags(kernel_xxx) of the specific kernel, such as 5.15.y, 6.1.y, etc.
 specific_tags="${default_tags}"
 # Set the list of kernels used by default
-stable_kernel=("6.1.1" "5.15.1")
-flippy_kernel=("6.1.1" "5.15.1")
-dev_kernel=("6.1.1" "5.15.1")
 rk3588_kernel=("5.10.1")
+stable_kernel=("6.1.1" "5.15.1")
+flippy_kernel=(${stable_kernel[*]})
+dev_kernel=(${stable_kernel[*]})
+beta_kernel=(${stable_kernel[*]})
 # Set to automatically use the latest kernel
 auto_kernel="true"
 
@@ -100,8 +101,10 @@ boot_mb="256"
 root_mb="2560"
 # Set ROOTFS partition file system type, options: [ ext4 / btrfs ]
 rootfs_type="ext4"
-# Custom name in Armbian file: ${build_image_file}, such as _server, _dev, etc.
-custom_name="_server"
+# Set Armbian OS type (server / desktop)
+os_type="server"
+# Set Armbian builder signature
+builder_name=""
 
 # Get gh_token for api.github.com
 gh_token=""
@@ -197,12 +200,13 @@ init_var() {
             ;;
         -k | --Kernel)
             if [[ -n "${2}" ]]; then
-                oldIFS=${IFS}
-                IFS=_
+                oldIFS="${IFS}"
+                IFS="_"
                 flippy_kernel=(${2})
                 stable_kernel=(${2})
                 dev_kernel=(${2})
-                IFS=${oldIFS}
+                beta_kernel=(${2})
+                IFS="${oldIFS}"
                 shift
             else
                 error_msg "Invalid -k parameter [ ${2} ]!"
@@ -232,9 +236,9 @@ init_var() {
                 error_msg "Invalid -s parameter [ ${2} ]!"
             fi
             ;;
-        -n | --customName)
+        -n | --BuilderName)
             if [[ -n "${2}" ]]; then
-                custom_name="${2// /}"
+                builder_name="${2// /}"
                 shift
             else
                 error_msg "Invalid -n parameter [ ${2} ]!"
@@ -259,7 +263,7 @@ init_var() {
 check_data() {
     # Columns of ${model_conf}:
     # 1.ID  2.MODEL  3.SOC  4.FDTFILE  5.UBOOT_OVERLOAD  6.MAINLINE_UBOOT  7.BOOTLOADER_IMG  8.DESCRIPTION
-    # 9.KERNEL_TAGS  10.PLATFORM  11.FAMILY  12.BOOT_CONF  13.BOARD  14.BUILD
+    # 9.KERNEL_TAGS  10.PLATFORM  11.FAMILY  12.BOOT_CONF  13.CONTRIBUTORS  14.BOARD  15.BUILD
     [[ -f "${model_conf}" ]] || error_msg "Missing model config file: [ ${model_conf} ]"
 
     # Get a list of build devices
@@ -268,8 +272,8 @@ check_data() {
         build_armbian=($(
             cat ${model_conf} |
                 sed -e 's/NA//g' -e 's/NULL//g' -e 's/[ ][ ]*//g' |
-                grep -E "^[^#].*:yes$" | awk -F':' '{print $13}' |
-                sort | uniq | xargs
+                grep -E "^[^#].*:yes$" | awk -F':' '{print $14}' |
+                sort -u | xargs
         ))
     else
         board_list=":($(echo ${build_board} | sed -e 's/_/\|/g')):(yes|no)"
@@ -282,7 +286,7 @@ check_data() {
         cat ${model_conf} |
             sed -e 's/NA//g' -e 's/NULL//g' -e 's/[ ][ ]*//g' -e 's/\.y/\.1/g' |
             grep -E "^[^#].*${board_list}$" | awk -F':' '{print $9}' |
-            sort | uniq | xargs
+            sort -u | xargs
     ))
     [[ "${#kernel_from[*]}" -eq "0" ]] && error_msg "Missing [ KERNEL_TAGS ] settings, stop building."
     # Replace custom kernel tags
@@ -292,10 +296,10 @@ check_data() {
     }
 
     # The [ specific kernel ], Use the [ kernel version number ], such as 5.15.y, 6.1.y, etc. download from [ kernel_stable ].
-    specific_kernel=($(echo ${kernel_from[*]} | sed -e 's/[ ][ ]*/\n/g' | grep -E "^[0-9]+" | sort | uniq | xargs))
+    specific_kernel=($(echo ${kernel_from[*]} | sed -e 's/[ ][ ]*/\n/g' | grep -E "^[0-9]+" | sort -u | xargs))
 
     # The [ suffix ] of KERNEL_TAGS starts with a [ letter ], such as kernel_stable, kernel_rk3588, etc.
-    tags_list=($(echo ${kernel_from[*]} | sed -e 's/[ ][ ]*/\n/g' | grep -E "^[a-z]" | sort | uniq | xargs))
+    tags_list=($(echo ${kernel_from[*]} | sed -e 's/[ ][ ]*/\n/g' | grep -E "^[a-z]" | sort -u | xargs))
     # Add the specific kernel to the list
     [[ "${#specific_kernel[*]}" -ne "0" ]] && tags_list=(${tags_list[*]} "specific")
     # Check the kernel list
@@ -352,6 +356,9 @@ query_kernel() {
             dev)
                 down_kernel_list=(${dev_kernel[*]})
                 ;;
+            beta)
+                down_kernel_list=(${beta_kernel[*]})
+                ;;
             rk3588)
                 down_kernel_list=(${rk3588_kernel[*]})
                 ;;
@@ -371,28 +378,19 @@ query_kernel() {
                 # Identify the kernel <VERSION> and <PATCHLEVEL>, such as [ 6.1 ]
                 kernel_verpatch="$(echo ${kernel_var} | awk -F '.' '{print $1"."$2}')"
 
-                if [[ -n "${gh_token}" ]]; then
-                    latest_version="$(
-                        curl -s \
-                            -H "Accept: application/vnd.github+json" \
-                            -H "Authorization: Bearer ${gh_token}" \
-                            ${kernel_api}/releases/tags/kernel_${kd} |
-                            jq -r '.assets[].name' |
-                            grep -oE "${kernel_verpatch}\.[0-9]+" |
-                            sort -rV | head -n 1
-                    )"
-                    query_api="Authenticated user request"
-                else
-                    latest_version="$(
-                        curl -s \
-                            -H "Accept: application/vnd.github+json" \
-                            ${kernel_api}/releases/tags/kernel_${kd} |
-                            jq -r '.assets[].name' |
-                            grep -oE "${kernel_verpatch}\.[0-9]+" |
-                            sort -rV | head -n 1
-                    )"
-                    query_api="Unauthenticated user request"
-                fi
+                # Set the token for api.github.com
+                [[ -n "${gh_token}" ]] && ght="-H \"Authorization: Bearer ${gh_token}\"" || ght=""
+
+                # Query the latest kernel version
+                latest_version="$(
+                    curl -s \
+                        -H "Accept: application/vnd.github+json" \
+                        ${ght} \
+                        ${kernel_api}/releases/tags/kernel_${kd} |
+                        jq -r '.assets[].name' |
+                        grep -oE "${kernel_verpatch}\.[0-9]+" |
+                        sort -rV | head -n 1
+                )"
 
                 if [[ "${?}" -eq "0" && -n "${latest_version}" ]]; then
                     tmp_arr_kernels[${i}]="${latest_version}"
@@ -400,7 +398,7 @@ query_kernel() {
                     tmp_arr_kernels[${i}]="${kernel_var}"
                 fi
 
-                echo -e "${INFO} (${x}.${i}) [ ${k} - ${tmp_arr_kernels[$i]} ] is latest kernel (${query_api}). \n"
+                echo -e "${INFO} (${x}.${i}) [ ${k} - ${tmp_arr_kernels[$i]} ] is latest kernel. \n"
 
                 let i++
             done
@@ -418,6 +416,10 @@ query_kernel() {
             dev)
                 unset dev_kernel
                 dev_kernel=(${tmp_arr_kernels[*]})
+                ;;
+            beta)
+                unset beta_kernel
+                beta_kernel=(${tmp_arr_kernels[*]})
                 ;;
             rk3588)
                 unset rk3588_kernel
@@ -470,6 +472,9 @@ download_kernel() {
             dev)
                 down_kernel_list=(${dev_kernel[*]})
                 ;;
+            beta)
+                down_kernel_list=(${beta_kernel[*]})
+                ;;
             rk3588)
                 down_kernel_list=(${rk3588_kernel[*]})
                 ;;
@@ -491,7 +496,7 @@ download_kernel() {
                     wget "${kernel_down_from}" -q -P "${kernel_path}/${kd}"
                     [[ "${?}" -ne "0" ]] && error_msg "Failed to download the kernel files from the server."
 
-                    tar -xf "${kernel_path}/${kd}/${kernel_var}.tar.gz" -C "${kernel_path}/${kd}"
+                    tar -mxzf "${kernel_path}/${kd}/${kernel_var}.tar.gz" -C "${kernel_path}/${kd}"
                     [[ "${?}" -ne "0" ]] && error_msg "[ ${kernel_var} ] kernel decompression failed."
                 else
                     echo -e "${INFO} (${x}.${i}) [ ${k} - ${kernel_var} ] Kernel is in the local directory."
@@ -517,7 +522,7 @@ confirm_version() {
 
     # Columns of ${model_conf}:
     # 1.ID  2.MODEL  3.SOC  4.FDTFILE  5.UBOOT_OVERLOAD  6.MAINLINE_UBOOT  7.BOOTLOADER_IMG  8.DESCRIPTION
-    # 9.KERNEL_TAGS  10.PLATFORM  11.FAMILY  12.BOOT_CONF  13.BOARD  14.BUILD
+    # 9.KERNEL_TAGS  10.PLATFORM  11.FAMILY  12.BOOT_CONF  13.CONTRIBUTORS  14.BOARD  15.BUILD
     # Column 5, called <UBOOT_OVERLOAD> in Amlogic, <TRUST_IMG> in Rockchip, Not used in Allwinner.
 
     # Find [ the first ] configuration information with [ the same BOARD name ] and [ BUILD as yes ] in the ${model_conf} file.
@@ -530,6 +535,8 @@ confirm_version() {
     [[ -n "${board_conf}" ]] || error_msg "[ ${board} ] config is missing!"
 
     # Get device settings options
+    MODEL_ID="$(echo ${board_conf} | awk -F':' '{print $1}')"
+    MODEL_NAME="$(echo ${board_conf} | awk -F':' '{print $2}')"
     SOC="$(echo ${board_conf} | awk -F':' '{print $3}')"
     FDTFILE="$(echo ${board_conf} | awk -F':' '{print $4}')"
     UBOOT_OVERLOAD="$(echo ${board_conf} | awk -F':' '{print $5}')"
@@ -540,6 +547,7 @@ confirm_version() {
     PLATFORM="$(echo ${board_conf} | awk -F':' '{print $10}')"
     FAMILY="$(echo ${board_conf} | awk -F':' '{print $11}')"
     BOOT_CONF="$(echo ${board_conf} | awk -F':' '{print $12}')"
+    CONTRIBUTORS="$(echo ${board_conf} | awk -F':' '{print $13}')"
 
     # Check whether the key parameters are correct
     [[ -n "${PLATFORM}" ]] || error_msg "Invalid PLATFORM parameter: [ ${PLATFORM} ]"
@@ -606,7 +614,7 @@ make_image() {
     }
 
     # Set Armian file name
-    armbian_filename="Armbian_${armbian_rebuild_version}_${PLATFORM}_${board}_${release_codename}_${kernel}${custom_name}_$(date +"%Y.%m.%d").img"
+    armbian_filename="Armbian_${armbian_rebuild_version}_${PLATFORM}_${board}_${release_codename}_${kernel}_${os_type}_$(date +"%Y.%m.%d").img"
     build_image_file="${tmp_outpath}/${armbian_filename}"
     rm -f ${build_image_file}
 
@@ -761,7 +769,7 @@ replace_kernel() {
     [[ -s "${kernel_boot}" && -s "${kernel_dtb}" && -s "${kernel_modules}" && -s "${kernel_header}" ]] || error_msg "The 4 kernel missing."
 
     # 01. For /boot five files
-    tar -xzf ${kernel_boot} -C ${tag_bootfs}
+    tar -mxzf ${kernel_boot} -C ${tag_bootfs}
     [[ "${PLATFORM}" == "amlogic" ]] && (cd ${tag_bootfs} && cp -f uInitrd-${kernel_name} uInitrd && cp -f vmlinuz-${kernel_name} zImage)
     [[ "${PLATFORM}" == "rockchip" ]] && (cd ${tag_bootfs} && ln -sf uInitrd-${kernel_name} uInitrd && ln -sf vmlinuz-${kernel_name} Image)
     [[ "${PLATFORM}" == "allwinner" ]] && (cd ${tag_bootfs} && cp -f uInitrd-${kernel_name} uInitrd && cp -f vmlinuz-${kernel_name} Image)
@@ -770,18 +778,18 @@ replace_kernel() {
 
     # 02. For /boot/dtb/${PLATFORM}/*
     [[ -d "${tag_bootfs}/dtb/${PLATFORM}" ]] || mkdir -p ${tag_bootfs}/dtb/${PLATFORM}
-    tar -xzf ${kernel_dtb} -C ${tag_bootfs}/dtb/${PLATFORM}
+    tar -mxzf ${kernel_dtb} -C ${tag_bootfs}/dtb/${PLATFORM}
     [[ "${PLATFORM}" == "rockchip" ]] && ln -sf dtb ${tag_bootfs}/dtb-${kernel_name}
     [[ "$(ls ${tag_bootfs}/dtb/${PLATFORM} -l 2>/dev/null | grep "^-" | wc -l)" -ge "2" ]] || error_msg "/boot/dtb/${PLATFORM} files is missing."
 
     # 03. For /usr/src/linux-headers-${kernel_name}
     header_path="linux-headers-${kernel_name}"
     rm -rf ${tag_rootfs}/usr/src/linux-headers-* 2>/dev/null && mkdir -p "${tag_rootfs}/usr/src/${header_path}"
-    tar -xzf ${kernel_header} -C ${tag_rootfs}/usr/src/${header_path}
+    tar -mxzf ${kernel_header} -C ${tag_rootfs}/usr/src/${header_path}
     [[ -d "${tag_rootfs}/usr/src/${header_path}/include" ]] || error_msg "/usr/src/${header_path}/include folder is missing."
 
     # 04. For /usr/lib/modules/${kernel_name}
-    tar -xzf ${kernel_modules} -C ${tag_rootfs}/usr/lib/modules
+    tar -mxzf ${kernel_modules} -C ${tag_rootfs}/usr/lib/modules
     (cd ${tag_rootfs}/usr/lib/modules/${kernel_name}/ && rm -f build source 2>/dev/null && ln -sf /usr/src/${header_path} build)
     [[ "$(ls ${tag_rootfs}/usr/lib/modules/${kernel_name} -l 2>/dev/null | grep "^d" | wc -l)" -eq "1" ]] || error_msg "/usr/lib/modules kernel folder is missing."
 }
@@ -892,7 +900,6 @@ refactor_rootfs() {
 
     # Fix common releases permissions
     [[ -d "var/tmp" ]] && chmod 777 var/tmp
-    [[ -d "etc/update-motd.d" ]] && chmod 755 etc/update-motd.d/*
     [[ -d "var/cache/man" ]] && chown man:root var/cache/man -R
     [[ -d "var/cache/man" ]] && chmod g+s var/cache/man -R
     [[ -f "etc/sudoers" ]] && chown root:root etc/sudoers
@@ -1025,10 +1032,12 @@ refactor_rootfs() {
     echo "PLATFORM='${PLATFORM}'" >>${ophub_release_file}
     echo "VERSION_CODEID='${release_codeid}'" >>${ophub_release_file}
     echo "VERSION_CODENAME='${release_codename}'" >>${ophub_release_file}
-    echo "FAMILY='${FAMILY}'" >>${ophub_release_file}
-    echo "BOARD='${board}'" >>${ophub_release_file}
+    echo "MODEL_ID='${MODEL_ID}'" >>${ophub_release_file}
+    echo "MODEL_NAME='${MODEL_NAME}'" >>${ophub_release_file}
     echo "SOC='${SOC}'" >>${ophub_release_file}
     echo "FDTFILE='${FDTFILE}'" >>${ophub_release_file}
+    echo "FAMILY='${FAMILY}'" >>${ophub_release_file}
+    echo "BOARD='${board}'" >>${ophub_release_file}
     echo "KERNEL_REPO='${kernel_repo}'" >>${ophub_release_file}
     echo "KERNEL_TAGS='${KERNEL_TAGS}'" >>${ophub_release_file}
     echo "KERNEL_VERSION='${kernel}'" >>${ophub_release_file}
@@ -1046,6 +1055,10 @@ refactor_rootfs() {
     elif [[ "${PLATFORM}" == "amlogic" ]]; then
         echo "UBOOT_OVERLOAD='${UBOOT_OVERLOAD}'" >>${ophub_release_file}
     fi
+    echo "BUILD_REPOSITORY='github.com/armbian/build'" >>${ophub_release_file}
+    echo "REBUILD_REPOSITORY='github.com/ophub/amlogic-s9xxx-armbian'" >>${ophub_release_file}
+    echo "CONTRIBUTORS='${CONTRIBUTORS}'" >>${ophub_release_file}
+    echo "BUILDER_NAME='${builder_name}'" >>${ophub_release_file}
     echo "PACKAGED_DATE='$(date +%Y-%m-%d)'" >>${ophub_release_file}
 
     sync && sleep 3
@@ -1096,6 +1109,9 @@ loop_rebuild() {
                 ;;
             dev)
                 kernel_list=(${dev_kernel[*]})
+                ;;
+            beta)
+                kernel_list=(${beta_kernel[*]})
                 ;;
             rk3588)
                 kernel_list=(${rk3588_kernel[*]})
@@ -1164,7 +1180,7 @@ find_armbian
 # Download the dependency files
 download_depends
 # Query the latest kernel version
-[[ "${auto_kernel}" == "true" ]] && query_kernel
+[[ "${auto_kernel}" == "true" || "${auto_kernel}" == "yes" ]] && query_kernel
 # Download the kernel files
 download_kernel
 

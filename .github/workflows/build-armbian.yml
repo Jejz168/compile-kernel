@@ -17,6 +17,8 @@ on:
         options:
           - jammy
           - bullseye
+          - lunar
+          - bookworm
       armbian_fstype:
         description: "Select armbian rootfs type."
         required: false
@@ -34,8 +36,10 @@ on:
           - all
           - s922x_s905x3_s905d_s912_s905l3a
           - s905x-t95_s912-t95z-plus_s905l3-unt400g1
+          - smart-am40_station-m1_sw799_tn3399_vplus_zysj
           - s905d
           - s905d-ki-pro
+          - s905d-sml5442tw
           - s905x
           - s905x-tx9
           - s905x-t95
@@ -45,6 +49,7 @@ on:
           - s905w-w95
           - s905w-x96w
           - s905w-x96-mini
+          - s905l
           - s905l2
           - s905l2-wojia
           - s905l2-e900v21e
@@ -63,8 +68,6 @@ on:
           - s912
           - s912-zyxq-fake
           - s912-h96pro-plus
-          - s912-tx92
-          - s912-z6-plus
           - s912-m8s-pro
           - s912-t95z-plus
           - s912-tx9-pro-3g
@@ -99,9 +102,9 @@ on:
           - s905x3-ip1001m
           - s905x3-q1
           - s905x3-q2
-          - s905x3-q1000
           - s905x3-a100
           - s905x3-2101
+          - s905x3-whale
           - s905x3-b
           - s905
           - s905-mxqpro-plus
@@ -113,6 +116,7 @@ on:
           - r68s
           - h66k
           - h68k
+          - h69k
           - e25
           - nanopi-r5s
           - panther-x2
@@ -125,6 +129,8 @@ on:
           - smart-am40
           - sw799
           - zysj
+          - dlfr100
+          - dg3399
           - beikeyun
           - l1pro
           - station-m1
@@ -163,14 +169,23 @@ on:
           - stable
           - flippy
           - dev
+          - beta
       armbian_storage:
-        description: "Select Armbian image storage time."
+        description: "Select image storage type."
         required: false
-        default: "lts"
+        default: "save"
         type: choice
         options:
-          - lts
-          - tmp
+          - save
+          - temp
+      builder_name:
+        description: "Set Armbian builder signature."
+        required: false
+        default: "angel"
+        type: choice
+        options:
+          - angel
+          - yourname
 
 env:
   TZ: America/New_York
@@ -219,10 +234,10 @@ jobs:
               ./compile.sh RELEASE=${{ inputs.set_release }} BOARD=odroidn2 BRANCH=current BUILD_MINIMAL=no \
                   BUILD_ONLY=default HOST=armbian BUILD_DESKTOP=no EXPERT=yes KERNEL_CONFIGURE=no \
                   CLEAN_LEVEL="make,cache,alldebs,sources" COMPRESS_OUTPUTIMAGE="sha"
-          echo "build_tag=Armbian_${{ inputs.set_release }}_${{ inputs.armbian_storage }}_$(date +"%Y.%m")" >> ${GITHUB_OUTPUT}
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       - name: Clean up server space
+        id: clean
         if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
         run: |
           cd build/
@@ -235,19 +250,21 @@ jobs:
             sudo pigz -f *.img && sync
             sudo rm -rf $(ls . | grep -v ".img.gz" | xargs) 2>/dev/null
             df -hT ${PWD}
+          echo "build_tag=Armbian_${{ inputs.set_release }}_${{ inputs.armbian_storage }}_$(date +"%Y.%m")" >> ${GITHUB_OUTPUT}
+          echo "status=success" >> ${GITHUB_OUTPUT}
 
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
-        if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
+        if: ${{ steps.clean.outputs.status }} == 'success' && !cancelled()
         with:
-          tag: ${{ steps.compile.outputs.build_tag }}
+          tag: ${{ steps.clean.outputs.build_tag }}
           artifacts: build/output/images/*.img.gz
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Rebuild Armbian
         uses: ophub/amlogic-s9xxx-armbian@main
-        if: ${{ steps.compile.outputs.status }} == 'success' && !cancelled()
+        if: ${{ steps.clean.outputs.status }} == 'success' && !cancelled()
         with:
           build_target: armbian
           armbian_path: build/output/images/*.img.gz
@@ -257,13 +274,14 @@ jobs:
           kernel_repo: ${{ inputs.kernel_repo }}
           kernel_usage: ${{ inputs.kernel_usage }}
           armbian_fstype: ${{ inputs.armbian_fstype }}
+          builder_name: ${{ inputs.builder_name }}
           gh_token: ${{ secrets.GH_TOKEN }}
 
       - name: Upload Rebuild image to Release
         uses: ncipollo/release-action@main
         if: ${{ env.PACKAGED_STATUS }} == 'success' && !cancelled()
         with:
-          tag: ${{ steps.compile.outputs.build_tag }}
+          tag: ${{ steps.clean.outputs.build_tag }}
           artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
           allowUpdates: true
           removeArtifacts: false

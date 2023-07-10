@@ -31,6 +31,8 @@ Github Actions is a service launched by Microsoft that provides virtual server e
       - [8.2.5 Installation method of Chainedbox-L1-Pro](#825-installation-method-of-chainedbox-l1-pro)
     - [8.3 Allwinner Series Installation Method](#83-allwinner-series-installation-method)
   - [9. Compile Armbian Kernel](#9-compile-armbian-kernel)
+    - [9.1 How to Add Custom Kernel Patches](#91-how-to-add-custom-kernel-patches)
+    - [9.2 How to create kernel patches](#92-how-to-create-kernel-patches)
   - [10. Update Armbian Kernel](#10-update-armbian-kernel)
   - [11. Install Common Software](#11-install-common-software)
   - [12. Common Issues](#12-common-issues)
@@ -58,6 +60,7 @@ Github Actions is a service launched by Microsoft that provides virtual server e
           - [12.7.2.3.1 Static IP Address - IPv4](#127231-static-ip-address---ipv4)
           - [12.7.2.3.2 DHCP Obtains Dynamic IP Address - IPv4 / IPv6](#127232-dhcp-obtains-dynamic-ip-address---ipv4--ipv6)
         - [12.7.2.4 Modifying Network Connection MAC Address](#12724-modifying-network-connection-mac-address)
+        - [12.7.2.5 How to Disable IPv6](#12725-how-to-disable-ipv6)
       - [12.7.3 How to Enable Wireless](#1273-how-to-enable-wireless)
       - [12.7.4 How to Enable Bluetooth](#1274-how-to-enable-bluetooth)
     - [12.8 How to Add Startup Tasks](#128-how-to-add-startup-tasks)
@@ -234,6 +237,12 @@ Use tools such as Rufus or balenaEtcher to write the Armbian system image to the
 
 ##### 8.2.1.2 Install the system to eMMC
 
+- Install using microSD card: Write the Armbian system image to the microSD card, insert the microSD card into the device and boot it up, upload the `armbian.img` image file to the microSD card, and use the `dd` command to write the Armbian image to the NVMe, as follows:
+
+```Shell
+dd if=armbian.img of=/dev/mmcblk1 bs=1M status=progress
+```
+
 - Use USB to eMMC card reader for installation: Connect the eMMC module to the computer, and use tools such as Rufus or balenaEtcher to write the Armbian system image to the eMMC. Then insert the eMMC with the written system into the device to use.
 - Use Maskrom mode for installation: Turn off the development board power. Hold down the gold button. Insert the USB-A to C cable into the ROCK 5B C port, and the other end into the PC. Release the gold button. Check the USB device prompt to find a MASKROM device. Right-click on the blank area of ​​the list, and then select to load the `rock-5b-emmc.cfg` configuration file (the configuration file and RKDevTool are in the same directory). Set `rk3588_spl_loader_v1.08.111.bin` and `Armbian.img` as shown below, and select write.
 
@@ -258,7 +267,7 @@ Turn off the development board power. Remove the bootable device, such as MicroS
 </div>
 
 - Install using a card reader: Insert the M.2 NVMe SSD into the M.2 NVMe SSD to USB3.0 card reader to connect to the host. Write the Armbian system image to the NVMe using tools such as Rufus or balenaEtcher and then insert the NVMe with the written system into the device to use.
-- Install using microSD card: Write the Armbian system image to the microSD card, insert the microSD card into the device and boot it up, upload the `Armbian.img` image file to the microSD card, and use the `dd` command to write the Armbian image to the NVMe, as follows:
+- Install using microSD card: Write the Armbian system image to the microSD card, insert the microSD card into the device and boot it up, upload the `armbian.img` image file to the microSD card, and use the `dd` command to write the Armbian image to the NVMe, as follows:
 
 ```Shell
 dd if=armbian.img of=/dev/nvme0n1 bs=1M status=progress
@@ -319,7 +328,46 @@ armbian-install
 
 ## 9. Compile Armbian Kernel
 
-Supports compiling the kernel in Ubuntu20.04/22.04 or Armbian system. Both local compilation and GitHub Actions cloud compilation are supported. For specific methods, please refer to [Kernel Compilation Instructions](../../compile-kernel/README.md).
+Supports compiling the kernel in Ubuntu20.04/22.04, debian11 or Armbian system. Both local compilation and GitHub Actions cloud compilation are supported. For specific methods, please refer to [Kernel Compilation Instructions](../../compile-kernel/README.md).
+
+### 9.1 How to Add Custom Kernel Patches
+
+When there is a directory of common kernel patches (`common-kernel-patches`) in the kernel patch directory [tools/patch](../../compile-kernel/tools/patch), or there is a directory with the same name as the `kernel source code repository` (e.g., [linux-5.15.y](https://github.com/unifreq/linux-5.15.y)), you can use `-p true` to automatically apply the kernel patch. The naming convention for patch directories is as follows:
+
+```shell
+~/amlogic-s9xxx-armbian
+    └── compile-kernel
+        └── tools
+            └── patch
+                ├── common-kernel-patches  # Fixed directory name: Storing common kernel patches
+                ├── linux-5.15.y           # Same as kernel source repository: storing dedicated kernel patches
+                ├── linux-6.1.y
+                ├── linux-5.10.y-rk35xx
+                └── more kernel directory...
+```
+
+- When compiling the kernel locally, you can manually create the corresponding directory and add the corresponding custom kernel patches.
+- When compiling in GitHub Actions cloud, you can use the `kernel_patch` parameter to specify the directory of the kernel patch in your repository. For example, the usage in the [compile-beta-kernel.yml](https://github.com/ophub/kernel/blob/main/.github/workflows/compile-beta-kernel.yml) file in the [kernel](https://github.com/ophub/kernel) repository.
+
+```yaml
+- name: Compile the kernel
+  uses: ophub/amlogic-s9xxx-armbian@main
+  with:
+    build_target: kernel
+    kernel_version: 5.15.1_6.1.1
+    kernel_auto: true
+    kernel_patch: kernel-patch/beta
+    auto_patch: true
+```
+
+When using the `kernel_patch` parameter to specify a custom kernel patch, please name the patch directory according to the above specifications.
+
+### 9.2 How to create kernel patches
+
+- Obtain from repositories such as [Armbian](https://github.com/armbian/build) and [OpenWrt](https://github.com/openwrt/openwrt), for example [armbian/patch/kernel](https://github.com/armbian/build/tree/main/patch/kernel/archive) and [openwrt/rockchip/patches-6.1](https://github.com/openwrt/openwrt/tree/main/target/linux/rockchip/patches-6.1), [lede/rockchip/patches-5.15](https://github.com/coolsnowwolf/lede/tree/master/target/linux/rockchip/patches-5.15), etc. Generally, patches in these repositories that use the mainline kernel can be used directly.
+- Obtain from commits in github.com repositories: add the `.patch` suffix to the corresponding `commit` address to generate the corresponding patch.
+
+Before adding custom kernel patches, it is necessary to compare them with the upstream kernel source repository [unifreq/linux-k.x.y](https://github.com/unifreq) to confirm whether the patches have already been added to avoid conflicts. Tested kernel patches are recommended to be submitted to the series of kernel repositories maintained by unifreq. Every little bit helps and everyone's contribution will make using Armbian and OpenWrt systems on boxes more stable and interesting.
 
 ## 10. Update Armbian Kernel
 
@@ -343,6 +391,8 @@ armbian-update
 | -h       | None          | None                 | View usage help                                                                   |
 
 Example: `armbian-update -k 5.15.50 -u dev`
+
+When specifying the kernel version using the `-k` parameter, you can provide an exact version number, for example: `armbian-update -k 5.15.50`. Alternatively, you can provide a fuzzy specification to indicate the kernel series, for example: `armbian-update -k 5.15`. When using a fuzzy specification, the tool will automatically select the latest version available in the specified series.
 
 When updating the kernel, the currently used kernel will be automatically backed up, and the storage path is in the `/ddbr/backup` directory. The three most recently used versions of the kernel will be kept. If the newly installed kernel is unstable, you can always restore the backup kernel:
 
@@ -719,6 +769,43 @@ ip -c -br address
 * Creating or modifying some network parameters may cause the network connection to be disconnected and reconnected.
 * Due to different software and hardware environments (boxes, systems, network devices, etc.), it may take `1-15` seconds for the changes to take effect. If it takes longer, please check the software and hardware environment.
 
+##### 12.7.2.5 How to Disable IPv6
+
+You can disable the IPv6 protocol using the nmcli utility on the command line. Refer to the source [disable-ipv6](https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/using-networkmanager-to-disable-ipv6-for-a-specific-connection_configuring-and-managing-networking).
+
+First, use the command `nmcli connection show` to view the list of network connections. The result will be as follows:
+
+```shell
+NAME                 UUID                                   TYPE       DEVICE
+Wired connection 1   8a7e0151-9c66-4e6f-89ee-65bb2d64d366   ethernet   eth0
+...
+```
+
+Set the ipv6.method parameter of the connection to disabled:
+
+```shell
+nmcli connection modify "Wired connection 1" ipv6.method "disabled"
+```
+
+Reconnect to the network:
+
+```shell
+nmcli connection up "Wired connection 1"
+```
+
+Check the network connection status. If there is no inet6 entry displayed, it means IPv6 is disabled on that device:
+
+```shell
+ip address show eth0
+```
+
+Verify that the file `/proc/sys/net/ipv6/conf/eth0/disable_ipv6` now contains the value `1`:
+
+```shell
+# cat /proc/sys/net/ipv6/conf/eth0/disable_ipv6
+1
+```
+
 #### 12.7.3 How to Enable Wireless
 
 Some devices support wireless usage, the method to enable it is as follows:
@@ -737,7 +824,16 @@ sudo nmcli r wifi on
 sudo nmcli dev wifi
 
 # Connect to a wireless network
-sudo nmcli dev wifi connect "WiFi Name" password "WiFi Password"
+sudo nmcli dev wifi connect "wifi_name" password "WiFi_Password"
+
+# Show the list of saved network connections
+sudo nmcli connection show
+
+# Disconnect from a connection
+sudo nmcli connection down "wifi_name"
+
+# Forget the connection and disable automatic connection
+sudo nmcli connection delete "wifi_name"
 ```
 
 <div style="width:100%;margin-top:40px;margin:5px;">

@@ -31,6 +31,7 @@ According to user feedback and demands in the [Issue](https://github.com/ophub/a
 | 123 | Alist                 | [Home](https://alist.nn.ci/) | [Docker](https://hub.docker.com/r/xhofe/alist) :5244  | A file list program that supports multiple storage, powered by Gin and Solidjs. |
 | 124 | QingLong              | [Home](https://github.com/whyour/qinglong) | [Docker](https://hub.docker.com/r/whyour/qinglong) :5700  | A timed task management panel that supports typescript, javaScript, python3, and shell. |
 | 125 | Chatgpt-Web           | [Home](https://github.com/Chanzhaoyu/chatgpt-web) | [Docker](https://hub.docker.com/r/chenzhaoyu94/chatgpt-web) :3002  | ChatGPT demo webpage built with Express and Vue3. |
+| 126 | Pandora(Chatgpt)      | [Home](https://github.com/pengzhile/pandora) | [Docker](https://hub.docker.com/r/pengzhile/pandora) :3003  | Pandora has achieved a local offline deployment of the web version of ChatGPT, with the same functionality and impressive speed. |
 | 201 | Desktop:GNOME         | [Home](https://www.gnome.org/) | -    | GNOME provides a focused desktop working environment that helps you get things done. |
 | 202 | Firefox               | [Home](https://www.mozilla.org/) | -    | An excellent web browser. |
 | 203 | VLC                   | [Home](https://www.videolan.org/) | -    | VLC is a free, open source, cross-platform multimedia player and framework that can play most multimedia files. |
@@ -55,6 +56,7 @@ According to user feedback and demands in the [Issue](https://github.com/ophub/a
 | 306 | Emby-Server           | [Home](https://emby.media/) | -    | Sync your personal media to the cloud for easy backup, archiving, and converting. Store your content in multiple resolutions to enable direct streaming from any device. |
 | 307 | KVM                   | [Home](https://virt-manager.org/) | -    | KVM (for Kernel-Based Virtual Machines) is a complete virtualization solution for Linux with virtualization extensions. The virt-manager application is a desktop user interface for managing virtual machines through libvirt. It primarily targets KVM VMs, but also manages Xen and LXC (linux containers). KVM virtual machine can install [OpenWrt](https://github.com/unifreq/openwrt_packit), Debian, Ubuntu, OpenSUSE, ArchLinux, Centos, Gentoo, KyLin, UOS, etc. |
 | 308 | PVE                   | [Home](https://github.com/pimox/pimox7) | https://IP:8006 | Proxmox Virtual Environment is an open source server virtualization management solution based on QEMU/KVM and LXC. You can manage virtual machines, containers, highly available clusters, storage and networks with an integrated, easy-to-use web interface or via CLI. |
+| 309 | CasaOS                | [Home](https://github.com/IceWhaleTech/CasaOS) | https://IP:81 | CasaOS is a simple, easy-to-use, elegant open-source Personal Cloud system. |
 
 ## Instructions for Using the Software Center
 
@@ -144,6 +146,7 @@ Welcome everyone to add more software. You can also submit support requirements 
 | 123 | Alist                 | [Home](https://alist.nn.ci/zh/) | [Docker](https://hub.docker.com/r/xhofe/alist) :5244  | 一个支持多种存储的文件列表程序，使用 Gin 和 Solidjs。 |
 | 124 | QingLong              | [Home](https://github.com/whyour/qinglong) | [Docker](https://hub.docker.com/r/whyour/qinglong) :5700  | 支持 python3、javaScript、shell、typescript 的定时任务管理面板。 |
 | 125 | Chatgpt-Web           | [Home](https://github.com/Chanzhaoyu/chatgpt-web) | [Docker](https://hub.docker.com/r/chenzhaoyu94/chatgpt-web) :3002  | 用 Express 和 Vue3 搭建的 ChatGPT 演示网页。 |
+| 126 | Pandora(Chatgpt)      | [Home](https://github.com/pengzhile/pandora) | [Docker](https://hub.docker.com/r/pengzhile/pandora) :3003  | 潘多拉实现了网页版 ChatGPT 本地离线部署，功能相同,速度喜人。 |
 | 201 | Desktop:GNOME         | [Home](https://www.gnome.org/) | -    | GNOME 提供了一个专注的桌面工作环境，可帮助您完成工作。 |
 | 202 | Firefox               | [Home](https://www.mozilla.org/) | -    | 一款优秀的网页浏览器。 |
 | 203 | VLC                   | [Home](https://www.videolan.org/) | -    | VLC 是一款自由、开源的跨平台多媒体播放器及框架，可播放大多数多媒体文件。 |
@@ -168,6 +171,7 @@ Welcome everyone to add more software. You can also submit support requirements 
 | 306 | Emby-Server           | [Home](https://emby.media/) | -    | 将您的个人媒体同步到云，以便轻松备份、存档和转换。以多种分辨率存储您的内容，以便从任何设备直接流式传输。 |
 | 307 | KVM                   | [Home](https://virt-manager.org/) | -    | KVM（用于基于内核的虚拟机）是包含虚拟化扩展适用于 Linux 的完整虚拟化解决方案。virt-manager 应用程序是一个桌面用户界面，用于通过 libvirt 管理虚拟机。它主要针对 KVM VM，但也管理 Xen 和 LXC（Linux 容器）。KVM 虚拟机可以安装 [OpenWrt](https://github.com/unifreq/openwrt_packit)、Debian、Ubuntu、OpenSUSE、ArchLinux、Centos、Gentoo、KyLin、UOS 等等。 |
 | 308 | PVE                   | [Home](https://github.com/pimox/pimox7) | https://IP:8006 | Proxmox 虚拟环境是一个基于 QEMU/KVM 和 LXC 的开源服务器虚拟化管理解决方案。您可以使用集成的、易于使用的 web 界面或通过 CLI 管理虚拟机、容器、高可用集群、存储和网络。 |
+| 309 | CasaOS                | [Home](https://github.com/IceWhaleTech/CasaOS) | https://IP:81 | CasaOS 是一个简单、易于使用、优雅的开源个人云系统。 |
 
 ## 软件中心使用说明
 

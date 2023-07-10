@@ -25,6 +25,7 @@
 # software_306  : For emby-server
 # software_307  : For kvm
 # software_308  : For pve
+# software_309  : For casaos
 #
 #============================================================================
 
@@ -423,6 +424,15 @@ EOF
         software_install "ifupdown2"
         software_update
 
+        # Adjust sshd_config (Fix the SSH certificate access modified by PVE)
+        [[ -L ~/.ssh/authorized_keys ]] && {
+            cp -f $(ls -l ~/.ssh/authorized_keys | awk '{print $NF}') ~/.ssh/authorized_keys_2
+            chmod 600 ~/.ssh/authorized_keys_2
+            sudo sed -i '/AuthorizedKeysFile/d' /etc/ssh/sshd_config
+            sudo echo "AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys_2" >>/etc/ssh/sshd_config
+            sudo /etc/init.d/ssh restart
+        }
+
         sync && sleep 3
         echo -e "${NOTE} The network address: [ https://${my_address}:8006 ]"
         echo -e "${NOTE} Username and Password: [  Your system account ]"
@@ -430,6 +440,26 @@ EOF
         ;;
     update) software_update ;;
     remove) software_remove "${pve_package_list}" ;;
+    *) error_msg "Invalid input parameter: [ ${@} ]" ;;
+    esac
+}
+
+# For casaos
+software_309() {
+    case "${software_manage}" in
+    install)
+        echo -e "${STEPS} Start installing CasaOS..."
+        wget -qO- https://get.casaos.io | sudo bash
+
+        sync && sleep 3
+        echo -e "${NOTE} The CasaOS access address: [ http://${my_address}:81 ]"
+        echo -e "${SUCCESS} CasaOS installation successful."
+        ;;
+    update) software_update ;;
+    remove)
+        sudo casaos-uninstall
+        echo -e "${SUCCESS} CasaOS uninstallation successful."
+        ;;
     *) error_msg "Invalid input parameter: [ ${@} ]" ;;
     esac
 }
