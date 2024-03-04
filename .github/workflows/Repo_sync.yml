@@ -28,10 +28,7 @@ jobs:
         #临时备份本仓库readme
         mv README.md back.md
         git clone https://github.com/ophub/amlogic-s9xxx-armbian
-        cd amlogic-s9xxx-armbian
-        mv * ./
-        sudo -E rm -f amlogic-s9xxx-armbian
-        cd ..
+        cp -rf amlogic-s9xxx-armbian/* ./
         sed -i 's/custom_name="-ophub"/custom_name=""/g' ./recompile
         sed -i 's/default: "-ophub"/default: ""/g' ./action.yml
         #备份源仓库readme
