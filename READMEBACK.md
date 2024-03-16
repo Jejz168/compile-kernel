@@ -188,7 +188,7 @@ sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbi
 | -k        | Kernel     | Specify [kernel](https://github.com/ophub/kernel/releases/tag/kernel_stable) name, such as `-k 6.6.12`. Connect multiple kernels with `_`, such as `-k 6.6.12_5.15.50`. The kernel version freely specified by the `-k` parameter is only valid for kernels using `stable/flippy/dev/beta`. Other kernel series such as [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) / [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx) / [h6](https://github.com/ophub/kernel/releases/tag/kernel_h6) can only use specific kernels. |
 | -a        | AutoKernel | Set whether to automatically adopt the latest version of the same series of kernels. When it is `true`, it will automatically look for whether there is a newer version of the same series in the kernel library in the kernel specified in `-k`, such as 6.6.12. If there is a latest version after 6.6.12, it will be automatically changed to the latest version. When set to `false`, it will compile the specified version of the kernel. Default value: `true` |
 | -t        | RootfsType | Set the file system type of the system's ROOTFS partition, the options are `ext4` or `btrfs` type. For example: `-t btrfs`. Default value: `ext4` |
-| -s        | Size       | Set the size of the system's ROOTFS partition, the system size must be greater than 2048MiB. For example: `-s 2560`. Default value: `2560` |
+| -s        | Size       | Set the size of the system's image partitions. When setting only the ROOTFS partition size, you can specify a single value, for example: `-s 2560`. When setting both BOOTFS and ROOTFS partition sizes, use / to connect the two values, for example: `-s 512/2560`. The default value is `512/2560` |
 | -n        | BuilderName | Set the Armbian system builder signature. Do not include spaces when setting the signature. Default value: `None` |
 
 - `sudo ./rebuild`: Use the default configuration to package all models of TV boxes.
@@ -218,7 +218,7 @@ sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbi
     build_target: armbian
     armbian_path: build/output/images/*.img
     armbian_board: s905d_s905x3_s922x_s905x
-    armbian_kernel: 6.6.12_5.15.50
+    armbian_kernel: 6.1.y_5.15.y
 ```
 
 - ### GitHub Actions Input Parameter Description
@@ -231,10 +231,10 @@ The related parameters correspond to the `local packaging command`, please refer
 | armbian_board          | all                      | Set the `board` of the package box, refer to `-b`                 |
 | kernel_repo            | ophub/kernel             | Specify `<owner>/<repo>` of the github.com kernel repository, refer to `-r` |
 | kernel_usage           | stable                   | Set the `tags suffix` of the used kernel. Refer to `-u` |
-| armbian_kernel         | 6.1.1_5.15.1             | Set the [version](https://github.com/ophub/kernel/releases/tag/kernel_stable) of the kernel, refer to `-k` |
+| armbian_kernel         | 6.1.y_5.15.y             | Set the [version](https://github.com/ophub/kernel/releases/tag/kernel_stable) of the kernel, refer to `-k` |
 | auto_kernel            | true                     | Set whether to automatically adopt the latest version of the same series kernel, refer to `-a`       |
 | armbian_fstype         | ext4                     | Set the file system type of the system's ROOTFS partition, refer to `-t`     |
-| armbian_size           | 2560                     | Set the size of the system's ROOTFS partition, refer to `-s`            |
+| armbian_size           | 512/2560                 | Set the size of the system BOOTFS and ROOTFS partitions, function reference `-s`  |
 | builder_name           | None                     | Set the Armbian system builder signature, refer to `-n`           |
 
 - ### GitHub Actions Output Variable Description
@@ -264,7 +264,7 @@ For the method of compiling the kernel, refer to [compile-kernel](compile-kernel
   uses: ophub/amlogic-s9xxx-armbian@main
   with:
     build_target: kernel
-    kernel_version: 5.15.1_6.1.1
+    kernel_version: 6.1.y_5.15.y
     kernel_auto: true
     kernel_sign: -yourname
 ```
